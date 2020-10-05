@@ -1,0 +1,4 @@
+<resources>
+    <string name="app_name">LOL</string>
+    <string name="mapbox_access_token">pk.eyJ1IjoiaWVyb3NoZW5rbyIsImEiOiJja2ZzaGNhbjYwZ2lkMnFycHZtbDJ4b2I0In0.qWo9EvPbSqznZuP1Y0Aekg</string>
+</resources>
