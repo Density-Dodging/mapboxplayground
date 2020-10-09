@@ -1,0 +1,11 @@
+package com.bignerdranch.android.mapboxplayground
+
+data class Building (
+    var id: String = "",
+    var buildingName: String = "",
+    var latitude: Double = 0.0,
+    var longitude: Double = 0.0,
+    var floors: Int = 0,
+    var people: List<Int> = listOf(),
+)
+

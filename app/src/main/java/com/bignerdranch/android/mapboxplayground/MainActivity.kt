@@ -32,6 +32,7 @@ class MainActivity : AppCompatActivity() {
     private var featureCollection: FeatureCollection? = null
     private lateinit var lineOne: FeatureCollection
     private lateinit var lineTwo: FeatureCollection
+    private var buildingMarkers: MapRepository = MapRepository.get()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -97,6 +98,7 @@ class MainActivity : AppCompatActivity() {
 
     private fun initFeatureCollection() {
         val markerCoordinates: MutableList<Feature> = ArrayList()
+
         val featureOne = Feature.fromGeometry(
             Point.fromLngLat(-71.809658, 42.273796)
         )
