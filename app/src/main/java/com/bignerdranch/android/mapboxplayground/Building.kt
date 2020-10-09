@@ -7,5 +7,7 @@ data class Building (
     var longitude: Double = 0.0,
     var floors: Int = 0,
     var people: List<Int> = listOf(),
+    var densityLevel: Int = 1, // 1, 2 or 3
+    var type: String = "non-study" // study, non-study
 )
 

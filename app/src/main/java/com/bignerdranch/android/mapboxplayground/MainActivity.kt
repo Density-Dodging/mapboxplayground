@@ -2,7 +2,6 @@ package com.bignerdranch.android.mapboxplayground
 
 // geo json
 
-import android.R.style
 import android.graphics.Color
 import android.graphics.Color.parseColor
 import android.os.Bundle
@@ -20,16 +19,22 @@ import com.mapbox.mapboxsdk.style.sources.GeoJsonOptions
 import com.mapbox.mapboxsdk.style.sources.GeoJsonSource
 
 
-private const val CIRCLE_LAYER_ID = "CIRCLE_LAYER_ID"
-private const val LINE_LAYER_ID = "LINE_LAYER_ID"
-private const val SOURCE_ID = "SOURCE_ID"
-private const val MARKER_ICON_ID = "MARKER_ICON_ID"
-private const val PROPERTY_ID = "PROPERTY_ID"
-private const val PROPERTY_SELECTED = "PROPERTY_SELECTED"
+private const val GREEN_CIRCLE_LAYER_ID = "green_buildings"
+private const val GREEN_BUILDINGS_SOURCE_ID = "green_buildings_source"
+
+private const val YELLOW_CIRCLE_LAYER_ID = "yellow_buildings"
+private const val YELLOW_BUILDINGS_SOURCE_ID = "yellow_buildings_source"
+
+private const val RED_CIRCLE_LAYER_ID = "red_buildings"
+private const val RED_BUILDINGS_SOURCE_ID = "red_buildings_source"
+
+private const val BUILDING_NAME = "building_name"
 
 class MainActivity : AppCompatActivity() {
     private var mapView: MapView? = null
-    private var featureCollection: FeatureCollection? = null
+    private var buildingGreenCollection: FeatureCollection? = null
+    private var buildingYellowCollection: FeatureCollection? = null
+    private var buildingRedCollection: FeatureCollection? = null
     private lateinit var lineOne: FeatureCollection
     private lateinit var lineTwo: FeatureCollection
     private var buildingMarkers: MapRepository = MapRepository.get()
@@ -47,31 +52,12 @@ class MainActivity : AppCompatActivity() {
             mapboxMap.setStyle(Style.MAPBOX_STREETS) {
                 // Map is set up and the style has loaded. Now you can add data or make other map adjustments
 
-                // MARKERS
                 // init marker positions
-                initFeatureCollection();
+                initBuildingsCollection()
 
-                it.addSource(GeoJsonSource(SOURCE_ID, featureCollection))
-
-                // Add the CircleLayer
-                val circleLayer: CircleLayer = CircleLayer(CIRCLE_LAYER_ID, SOURCE_ID)
-                    .withProperties(
-                        circleRadius(
-                            interpolate(
-                                linear(), zoom(),
-                                stop(2, 20f),
-                                stop(3, 15f)
-                            )
-                        ),
-                        circleColor(parseColor("#2196F3"))
-                    )
-                circleLayer.setFilter(eq(get(PROPERTY_SELECTED), literal(false)));
-                it.addLayer(circleLayer)
-
-
-                // LINES
-                generateLineOne()
-                drawLines(lineOne, it)
+//                // LINES
+//                generateLineOne()
+//                drawLines(lineOne, it)
 
                 // 3D - BUILDINGS
                 val fillExtrusionLayer = FillExtrusionLayer("3d-buildings", "composite")
@@ -92,32 +78,87 @@ class MainActivity : AppCompatActivity() {
                     fillExtrusionOpacity(0.6f)
                 )
                 it.addLayer(fillExtrusionLayer)
+
+                displayBuildingMarkerLayers(it)
             }
         }
     }
 
-    private fun initFeatureCollection() {
-        val markerCoordinates: MutableList<Feature> = ArrayList()
+    private fun displayBuildingMarkerLayers(style: Style) {
 
-        val featureOne = Feature.fromGeometry(
-            Point.fromLngLat(-71.809658, 42.273796)
-        )
-        featureOne.addStringProperty(PROPERTY_ID, "1")
-        featureOne.addBooleanProperty(PROPERTY_SELECTED, false)
-        markerCoordinates.add(featureOne)
-        val featureTwo = Feature.fromGeometry(
-            Point.fromLngLat(-71.809036, 42.273252)
-        )
-        featureTwo.addStringProperty(PROPERTY_ID, "2")
-        featureTwo.addBooleanProperty(PROPERTY_SELECTED, false)
-        markerCoordinates.add(featureTwo)
-        val featureThree = Feature.fromGeometry(
-            Point.fromLngLat(-71.809894, 42.273232)
-        )
-        featureThree.addStringProperty(PROPERTY_ID, "3")
-        featureThree.addBooleanProperty(PROPERTY_SELECTED, false)
-        markerCoordinates.add(featureThree)
-        featureCollection = FeatureCollection.fromFeatures(markerCoordinates)
+        // green
+        style.addSource(GeoJsonSource(GREEN_BUILDINGS_SOURCE_ID, buildingGreenCollection))
+
+        // Add the GreenBuildingLayer
+        val greenCircleLayer: CircleLayer = CircleLayer(GREEN_CIRCLE_LAYER_ID, GREEN_BUILDINGS_SOURCE_ID)
+            .withProperties(
+                circleRadius(
+                    interpolate(
+                        linear(), zoom(),
+                        stop(2, 20f),
+                        stop(3, 15f)
+                    )
+                ),
+                circleColor(parseColor("#3bb728"))
+            )
+        style.addLayer(greenCircleLayer)
+
+        // yellow
+        style.addSource(GeoJsonSource(YELLOW_BUILDINGS_SOURCE_ID, buildingYellowCollection))
+
+        // Add the GreenBuildingLayer
+        val yellowCircleLayer: CircleLayer = CircleLayer(YELLOW_CIRCLE_LAYER_ID, YELLOW_BUILDINGS_SOURCE_ID)
+            .withProperties(
+                circleRadius(
+                    interpolate(
+                        linear(), zoom(),
+                        stop(2, 20f),
+                        stop(3, 15f)
+                    )
+                ),
+                circleColor(parseColor("#ffda3a"))
+            )
+        style.addLayer(yellowCircleLayer)
+
+        // red
+        style.addSource(GeoJsonSource(RED_BUILDINGS_SOURCE_ID, buildingRedCollection))
+
+        // Add the GreenBuildingLayer
+        val redCircleLayer: CircleLayer = CircleLayer(RED_CIRCLE_LAYER_ID, RED_BUILDINGS_SOURCE_ID)
+            .withProperties(
+                circleRadius(
+                    interpolate(
+                        linear(), zoom(),
+                        stop(2, 20f),
+                        stop(3, 15f)
+                    )
+                ),
+                circleColor(parseColor("#da2f2f"))
+            )
+        style.addLayer(redCircleLayer)
+    }
+
+    private fun initBuildingsCollection() {
+        val greenMarkerCoordinates: MutableList<Feature> = ArrayList()
+        val yellowMarkerCoordinates: MutableList<Feature> = ArrayList()
+        val redMarkerCoordinates: MutableList<Feature> = ArrayList()
+
+
+        buildingMarkers.buildingCoordinates.forEach { building ->
+            val feature = Feature.fromGeometry(Point.fromLngLat(building.longitude, building.latitude))
+            feature.addStringProperty(BUILDING_NAME, building.buildingName)
+
+            when (building.densityLevel) {
+                3 -> redMarkerCoordinates.add(feature)
+                2 -> yellowMarkerCoordinates.add(feature)
+                else -> greenMarkerCoordinates.add(feature)
+            }
+
+        }
+
+        buildingGreenCollection = FeatureCollection.fromFeatures(greenMarkerCoordinates)
+        buildingYellowCollection = FeatureCollection.fromFeatures(yellowMarkerCoordinates)
+        buildingRedCollection = FeatureCollection.fromFeatures(redMarkerCoordinates)
     }
 
     private fun generateLineOne() {
@@ -139,8 +180,10 @@ class MainActivity : AppCompatActivity() {
 
     private fun drawLines(featureCollection: FeatureCollection, style: Style) {
         style.addSource(
-            GeoJsonSource("line-source", featureCollection,
-            GeoJsonOptions().withLineMetrics(true))
+            GeoJsonSource(
+                "line-source", featureCollection,
+                GeoJsonOptions().withLineMetrics(true)
+            )
         )
 
         // The layer properties for our line. This is where we make the line dotted, set the
