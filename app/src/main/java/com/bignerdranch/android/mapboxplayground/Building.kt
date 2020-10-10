@@ -10,4 +10,3 @@ data class Building (
     var densityLevel: Int = 1, // 1, 2 or 3
     var type: String = "non-study" // study, non-study
 )
-

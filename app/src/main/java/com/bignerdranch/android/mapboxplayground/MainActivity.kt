@@ -36,9 +36,11 @@ private const val YELLOW_BUILDINGS_SOURCE_ID = "yellow_buildings_source"
 private const val RED_CIRCLE_LAYER_ID = "red_buildings"
 private const val RED_BUILDINGS_SOURCE_ID = "red_buildings_source"
 
-private const val BUILDING_NAME = "building_name"
-private const val BUILDING_FLOORS = "building_floors"
-private const val BUILDING_PEOPLE = "building_people"
+const val BUILDING_NAME = "building_name"
+const val BUILDING_FLOORS = "building_floors"
+const val BUILDING_PEOPLE = "building_people"
+
+private const val REQUEST_CODE_BUILDING_INFO = 0
 
 class MainActivity : AppCompatActivity(), MapboxMap.OnMapClickListener {
     private var mapView: MapView? = null
@@ -181,7 +183,6 @@ class MainActivity : AppCompatActivity(), MapboxMap.OnMapClickListener {
 
             feature.addStringProperty(BUILDING_PEOPLE, building.people.toString())
             feature.addNumberProperty(BUILDING_FLOORS, building.floors)
-
         }
 
         buildingGreenCollection = FeatureCollection.fromFeatures(greenMarkerCoordinates)
@@ -245,6 +246,11 @@ class MainActivity : AppCompatActivity(), MapboxMap.OnMapClickListener {
      * @param screenPoint the point on screen clicked
      */
     private fun handleClickBuilding(screenPoint: PointF): Boolean {
+
+        var buildingName: String = ""
+        var buildingPopulation: String = ""
+        var buildingFloors: Number = 0.0
+
         val selectedGreenCircleFeatureList: List<Feature> =
             mapBoxMap?.queryRenderedFeatures(screenPoint, GREEN_CIRCLE_LAYER_ID) ?: listOf()
         val selectedYellowCircleFeatureList: List<Feature> =
@@ -253,29 +259,38 @@ class MainActivity : AppCompatActivity(), MapboxMap.OnMapClickListener {
             mapBoxMap?.queryRenderedFeatures(screenPoint, RED_CIRCLE_LAYER_ID) ?: listOf()
         if (selectedGreenCircleFeatureList.isNotEmpty()) {
             val selectedCircleFeature = selectedGreenCircleFeatureList[0]
-            val buildingName = selectedCircleFeature.getStringProperty(BUILDING_NAME)
-            val buildingPopulation =  selectedCircleFeature.getStringProperty(BUILDING_PEOPLE)
-            val buildingFloors = selectedCircleFeature.getNumberProperty(BUILDING_FLOORS)
+            buildingName = selectedCircleFeature.getStringProperty(BUILDING_NAME)
+            buildingPopulation =  selectedCircleFeature.getStringProperty(BUILDING_PEOPLE)
+            buildingFloors = selectedCircleFeature.getNumberProperty(BUILDING_FLOORS)
             Log.d("GreenDot", buildingName + buildingPopulation+ "$buildingFloors")
-
         }
 
         if (selectedYellowCircleFeatureList.isNotEmpty()) {
             val selectedCircleFeature = selectedYellowCircleFeatureList[0]
-            val buildingName = selectedCircleFeature.getStringProperty(BUILDING_NAME)
-            val buildingPopulation =  selectedCircleFeature.getStringProperty(BUILDING_PEOPLE)
-            val buildingFloors = selectedCircleFeature.getNumberProperty(BUILDING_FLOORS)
+            buildingName = selectedCircleFeature.getStringProperty(BUILDING_NAME)
+            buildingPopulation =  selectedCircleFeature.getStringProperty(BUILDING_PEOPLE)
+            buildingFloors = selectedCircleFeature.getNumberProperty(BUILDING_FLOORS)
             Log.d("YellowDot", buildingName + buildingPopulation+ "$buildingFloors")
         }
 
         if (selectedRedCircleFeatureList.isNotEmpty()) {
             val selectedCircleFeature = selectedRedCircleFeatureList[0]
-            val buildingName = selectedCircleFeature.getStringProperty(BUILDING_NAME)
-            val buildingPopulation =  selectedCircleFeature.getStringProperty(BUILDING_PEOPLE)
-            val buildingFloors = selectedCircleFeature.getNumberProperty(BUILDING_FLOORS)
+            buildingName = selectedCircleFeature.getStringProperty(BUILDING_NAME)
+            buildingPopulation =  selectedCircleFeature.getStringProperty(BUILDING_PEOPLE)
+            buildingFloors = selectedCircleFeature.getNumberProperty(BUILDING_FLOORS)
             Log.d("RedDot", buildingName + buildingPopulation+ "$buildingFloors")
         }
+
+        startBuildingDetailsIntent(buildingName, buildingPopulation, buildingFloors)
         return true
+    }
+
+    private fun startBuildingDetailsIntent(buildingName: String, buildingPeople: String, numFloors: Number) {
+        // check to make sure the fields for initialized
+        if (buildingName.isNotEmpty() && buildingPeople.isNotEmpty() && numFloors.toInt() > 0) {
+            val intent = BuildingDetailsActivity.newIntent(this@MainActivity, buildingName, buildingPeople, numFloors)
+            startActivityForResult(intent, REQUEST_CODE_BUILDING_INFO)
+        }
     }
 }
 
