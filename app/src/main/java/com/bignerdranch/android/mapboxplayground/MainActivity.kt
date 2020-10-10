@@ -253,26 +253,26 @@ class MainActivity : AppCompatActivity(), MapboxMap.OnMapClickListener {
             mapBoxMap?.queryRenderedFeatures(screenPoint, RED_CIRCLE_LAYER_ID) ?: listOf()
         if (selectedGreenCircleFeatureList.isNotEmpty()) {
             val selectedCircleFeature = selectedGreenCircleFeatureList[0]
-            var buildingName = selectedCircleFeature.getStringProperty(BUILDING_NAME)
-            var buildingPopulation =  selectedCircleFeature.getStringProperty(BUILDING_PEOPLE)
-            var buildingFloors = selectedCircleFeature.getNumberProperty(BUILDING_FLOORS)
+            val buildingName = selectedCircleFeature.getStringProperty(BUILDING_NAME)
+            val buildingPopulation =  selectedCircleFeature.getStringProperty(BUILDING_PEOPLE)
+            val buildingFloors = selectedCircleFeature.getNumberProperty(BUILDING_FLOORS)
             Log.d("GreenDot", buildingName + buildingPopulation+ "$buildingFloors")
 
         }
 
         if (selectedYellowCircleFeatureList.isNotEmpty()) {
             val selectedCircleFeature = selectedYellowCircleFeatureList[0]
-            var buildingName = selectedCircleFeature.getStringProperty(BUILDING_NAME)
-            var buildingPopulation =  selectedCircleFeature.getStringProperty(BUILDING_PEOPLE)
-            var buildingFloors = selectedCircleFeature.getNumberProperty(BUILDING_FLOORS)
+            val buildingName = selectedCircleFeature.getStringProperty(BUILDING_NAME)
+            val buildingPopulation =  selectedCircleFeature.getStringProperty(BUILDING_PEOPLE)
+            val buildingFloors = selectedCircleFeature.getNumberProperty(BUILDING_FLOORS)
             Log.d("YellowDot", buildingName + buildingPopulation+ "$buildingFloors")
         }
 
         if (selectedRedCircleFeatureList.isNotEmpty()) {
             val selectedCircleFeature = selectedRedCircleFeatureList[0]
-            var buildingName = selectedCircleFeature.getStringProperty(BUILDING_NAME)
-            var buildingPopulation =  selectedCircleFeature.getStringProperty(BUILDING_PEOPLE)
-            var buildingFloors = selectedCircleFeature.getNumberProperty(BUILDING_FLOORS)
+            val buildingName = selectedCircleFeature.getStringProperty(BUILDING_NAME)
+            val buildingPopulation =  selectedCircleFeature.getStringProperty(BUILDING_PEOPLE)
+            val buildingFloors = selectedCircleFeature.getNumberProperty(BUILDING_FLOORS)
             Log.d("RedDot", buildingName + buildingPopulation+ "$buildingFloors")
         }
         return true
