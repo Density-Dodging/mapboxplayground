@@ -29,10 +29,17 @@
         android:orientation="vertical">
 
         <SearchView
+            android:id="@+id/buildingSearch"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:outlineProvider="background"
+            android:queryHint="Search by building's short or long name"
             android:background="#FFF"/>
+        <ListView
+            android:id="@+id/buildingSuggestions"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_below="@id/buildingSearch"/>
     </LinearLayout>
 
     <LinearLayout

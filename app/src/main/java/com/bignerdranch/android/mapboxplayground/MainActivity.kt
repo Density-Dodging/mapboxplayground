@@ -6,6 +6,8 @@ import android.graphics.Color
 import android.graphics.Color.parseColor
 import android.graphics.PointF
 import android.os.Bundle
+import android.widget.ListView
+import android.widget.SearchView
 import androidx.appcompat.app.AppCompatActivity
 import com.mapbox.geojson.Feature
 import com.mapbox.geojson.FeatureCollection
@@ -48,6 +50,9 @@ class MainActivity : AppCompatActivity(), MapboxMap.OnMapClickListener {
     private var buildingMarkers: MapRepository = MapRepository.get()
     private var mapBoxMap: MapboxMap? = null
 
+    private lateinit var searchBar: SearchView
+    private lateinit var suggestionsList: ListView
+
     //////////////////////// LIFECYCLE ////////////////////////
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -55,7 +60,29 @@ class MainActivity : AppCompatActivity(), MapboxMap.OnMapClickListener {
         Mapbox.getInstance(this, getString(R.string.mapbox_access_token))
         setContentView(R.layout.activity_main)
 
+        initializeMap(savedInstanceState)
+        initializeUiElements()
+    }
 
+    //////////////////////// OTHER FCNS ////////////////////////
+
+    private fun initializeUiElements() {
+        searchBar = findViewById(R.id.buildingSearch)
+        suggestionsList = findViewById(R.id.buildingSuggestions)
+
+        searchBar.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
+            override fun onQueryTextSubmit(p0: String?): Boolean {
+                //Performs search when user hit the search button on the keyboard
+                return false
+            }
+
+            override fun onQueryTextChange(p0: String?): Boolean {
+                return false
+            }
+        })
+    }
+
+    private fun initializeMap(savedInstanceState: Bundle?) {
         mapView = findViewById(R.id.mapView)
         mapView?.onCreate(savedInstanceState)
         mapView?.getMapAsync { mapboxMap ->
@@ -96,8 +123,6 @@ class MainActivity : AppCompatActivity(), MapboxMap.OnMapClickListener {
             }
         }
     }
-
-    //////////////////////// OTHER FCNS ////////////////////////
 
     override fun onMapClick(point: LatLng): Boolean {
         if (mapBoxMap != null) {
