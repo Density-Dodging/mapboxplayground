@@ -1,11 +1,10 @@
 package com.bignerdranch.android.mapboxplayground
 
 import android.content.Context
-import com.mapbox.geojson.Feature
 
 class MapRepository private constructor(context: Context) {
 
-    val buildingCoordinates: MutableList<Building> = ArrayList()
+    val buildings: MutableList<Building> = ArrayList()
 
     // used for adding nodes into map
     init{
@@ -19,9 +18,9 @@ class MapRepository private constructor(context: Context) {
         var recCenter: Building = Building("SRC", "WPI Sports and Recreation Center",
             42.274149,-71.810568, 3, listOf(30,40,10), 1)
 
-        buildingCoordinates.add(foisie)
-        buildingCoordinates.add(CC)
-        buildingCoordinates.add(recCenter)
+        buildings.add(foisie)
+        buildings.add(CC)
+        buildings.add(recCenter)
     }
 
     companion object {

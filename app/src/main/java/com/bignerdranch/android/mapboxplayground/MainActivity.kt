@@ -3,11 +3,9 @@ package com.bignerdranch.android.mapboxplayground
 // geo json
 
 import android.graphics.Color
-import android.graphics.Color.YELLOW
 import android.graphics.Color.parseColor
 import android.graphics.PointF
 import android.os.Bundle
-import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
 import com.mapbox.geojson.Feature
 import com.mapbox.geojson.FeatureCollection
@@ -36,10 +34,7 @@ private const val YELLOW_BUILDINGS_SOURCE_ID = "yellow_buildings_source"
 private const val RED_CIRCLE_LAYER_ID = "red_buildings"
 private const val RED_BUILDINGS_SOURCE_ID = "red_buildings_source"
 
-const val BUILDING_NAME = "building_name"
-const val BUILDING_FLOORS = "building_floors"
-const val BUILDING_PEOPLE = "building_people"
-const val BUILDING_DENSITY = "building_density"
+const val BUILDING_ID = "building_id"
 
 private const val REQUEST_CODE_BUILDING_INFO = 0
 
@@ -178,7 +173,7 @@ class MainActivity : AppCompatActivity(), MapboxMap.OnMapClickListener {
 
         //building name
 
-        buildingMarkers.buildingCoordinates.forEach { building ->
+        buildingMarkers.buildings.forEach { building ->
             val feature = Feature.fromGeometry(
                 Point.fromLngLat(
                     building.longitude,
@@ -186,10 +181,7 @@ class MainActivity : AppCompatActivity(), MapboxMap.OnMapClickListener {
                 )
             )
 
-            feature.addStringProperty(BUILDING_NAME, building.buildingName)
-            feature.addStringProperty(BUILDING_PEOPLE, building.people.toString())
-            feature.addNumberProperty(BUILDING_FLOORS, building.floors)
-            feature.addNumberProperty(BUILDING_DENSITY, building.densityLevel)
+            feature.addStringProperty(BUILDING_ID, building.id)
 
             when (building.densityLevel) {
                 3 -> redMarkerCoordinates.add(feature)
@@ -253,10 +245,7 @@ class MainActivity : AppCompatActivity(), MapboxMap.OnMapClickListener {
      */
     private fun handleClickBuilding(screenPoint: PointF): Boolean {
 
-        var buildingName: String = ""
-        var buildingPopulation: String = ""
-        var buildingFloors: Int = -1
-        var buildingDensity: Int = -1
+        var buildingId: String = ""
 
         val selectedGreenCircleFeatureList: List<Feature> =
             mapBoxMap?.queryRenderedFeatures(screenPoint, GREEN_CIRCLE_LAYER_ID) ?: listOf()
@@ -266,39 +255,27 @@ class MainActivity : AppCompatActivity(), MapboxMap.OnMapClickListener {
             mapBoxMap?.queryRenderedFeatures(screenPoint, RED_CIRCLE_LAYER_ID) ?: listOf()
         if (selectedGreenCircleFeatureList.isNotEmpty()) {
             val selectedCircleFeature = selectedGreenCircleFeatureList[0]
-            buildingName = selectedCircleFeature.getStringProperty(BUILDING_NAME)
-            buildingPopulation =  selectedCircleFeature.getStringProperty(BUILDING_PEOPLE)
-            buildingFloors = selectedCircleFeature.getNumberProperty(BUILDING_FLOORS).toInt()
-            buildingDensity = selectedCircleFeature.getNumberProperty(BUILDING_DENSITY).toInt()
-            Log.d("GreenDot", buildingName + buildingPopulation+ "$buildingFloors")
+            buildingId = selectedCircleFeature.getStringProperty(BUILDING_ID)
         }
 
         if (selectedYellowCircleFeatureList.isNotEmpty()) {
             val selectedCircleFeature = selectedYellowCircleFeatureList[0]
-            buildingName = selectedCircleFeature.getStringProperty(BUILDING_NAME)
-            buildingPopulation =  selectedCircleFeature.getStringProperty(BUILDING_PEOPLE)
-            buildingFloors = selectedCircleFeature.getNumberProperty(BUILDING_FLOORS).toInt()
-            buildingDensity = selectedCircleFeature.getNumberProperty(BUILDING_DENSITY).toInt()
-            Log.d("YellowDot", buildingName + buildingPopulation+ "$buildingFloors")
+            buildingId = selectedCircleFeature.getStringProperty(BUILDING_ID)
         }
 
         if (selectedRedCircleFeatureList.isNotEmpty()) {
             val selectedCircleFeature = selectedRedCircleFeatureList[0]
-            buildingName = selectedCircleFeature.getStringProperty(BUILDING_NAME)
-            buildingPopulation =  selectedCircleFeature.getStringProperty(BUILDING_PEOPLE)
-            buildingFloors = selectedCircleFeature.getNumberProperty(BUILDING_FLOORS).toInt()
-            buildingDensity = selectedCircleFeature.getNumberProperty(BUILDING_DENSITY).toInt()
-            Log.d("RedDot", buildingName + buildingPopulation+ "$buildingFloors")
+            buildingId = selectedCircleFeature.getStringProperty(BUILDING_ID)
         }
 
-        startBuildingDetailsIntent(buildingName, buildingPopulation, buildingFloors, buildingDensity)
+        startBuildingDetailsIntent(buildingId)
         return true
     }
 
-    private fun startBuildingDetailsIntent(buildingName: String, buildingPeople: String, numFloors: Int, buildingDensity: Int) {
+    private fun startBuildingDetailsIntent(buildingId: String) {
         // check to make sure the fields for initialized
-        if (buildingName.isNotEmpty() && buildingPeople.isNotEmpty() && numFloors != -1 && buildingDensity != -1) {
-            val intent = BuildingDetailsActivity.newIntent(this@MainActivity, buildingName, buildingPeople, numFloors, buildingDensity)
+        if (buildingId.isNotEmpty()) {
+            val intent = BuildingDetailsActivity.newIntent(this@MainActivity, buildingId)
             startActivityForResult(intent, REQUEST_CODE_BUILDING_INFO)
         }
     }
