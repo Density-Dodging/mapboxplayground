@@ -6,6 +6,21 @@ class MapRepository private constructor(context: Context) {
 
     val buildings: MutableList<Building> = ArrayList()
 
+
+    fun getBuildingFromId(buildingId: String): Building? {
+        // find the building with the given id in our repository
+        for (i in 0 until buildings.size) {
+            var buildingFromRepo = buildings[i]
+            if (buildingFromRepo.id == buildingId) {
+                // store the obtained building in a variable
+                return buildingFromRepo
+            }
+        }
+
+        return null
+    }
+
+
     // used for adding nodes into map
     init{
         // dummy data -> replace

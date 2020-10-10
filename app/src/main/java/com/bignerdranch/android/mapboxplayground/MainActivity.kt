@@ -2,10 +2,15 @@ package com.bignerdranch.android.mapboxplayground
 
 // geo json
 
+import android.app.Activity
+import android.content.Intent
 import android.graphics.Color
 import android.graphics.Color.parseColor
 import android.graphics.PointF
 import android.os.Bundle
+import android.util.Log
+import android.widget.ListView
+import android.widget.SearchView
 import androidx.appcompat.app.AppCompatActivity
 import com.mapbox.geojson.Feature
 import com.mapbox.geojson.FeatureCollection
@@ -36,7 +41,7 @@ private const val RED_BUILDINGS_SOURCE_ID = "red_buildings_source"
 
 const val BUILDING_ID = "building_id"
 
-private const val REQUEST_CODE_BUILDING_INFO = 0
+const val REQUEST_CODE_BUILDING_INFO = 0
 
 class MainActivity : AppCompatActivity(), MapboxMap.OnMapClickListener {
     private var mapView: MapView? = null
@@ -48,6 +53,9 @@ class MainActivity : AppCompatActivity(), MapboxMap.OnMapClickListener {
     private var buildingMarkers: MapRepository = MapRepository.get()
     private var mapBoxMap: MapboxMap? = null
 
+    private lateinit var searchBar: SearchView
+    private lateinit var suggestionsList: ListView
+
     //////////////////////// LIFECYCLE ////////////////////////
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -55,7 +63,48 @@ class MainActivity : AppCompatActivity(), MapboxMap.OnMapClickListener {
         Mapbox.getInstance(this, getString(R.string.mapbox_access_token))
         setContentView(R.layout.activity_main)
 
+        initializeMap(savedInstanceState)
+        initializeUiElements()
+    }
 
+    override fun onActivityResult(
+        requestCode: Int,
+        resultCode: Int,
+        data: Intent?
+    ) {
+        super.onActivityResult(requestCode, resultCode, data)
+        if (resultCode != Activity.RESULT_OK) {
+            return
+        }
+        if (requestCode == REQUEST_CODE_BUILDING_INFO) {
+            val id  = data?.getStringExtra(DIRECTIONS_REQUESTED_FOR_ID).toString()
+            var building = buildingMarkers.getBuildingFromId(id)
+
+            if (building != null) {
+                Log.d("RESULTACTIVITY", building.buildingName)
+            }
+        }
+    }
+
+    //////////////////////// OTHER FCNS ////////////////////////
+
+    private fun initializeUiElements() {
+        searchBar = findViewById(R.id.buildingSearch)
+        suggestionsList = findViewById(R.id.buildingSuggestions)
+
+        searchBar.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
+            override fun onQueryTextSubmit(p0: String?): Boolean {
+                //Performs search when user hit the search button on the keyboard
+                return false
+            }
+
+            override fun onQueryTextChange(p0: String?): Boolean {
+                return false
+            }
+        })
+    }
+
+    private fun initializeMap(savedInstanceState: Bundle?) {
         mapView = findViewById(R.id.mapView)
         mapView?.onCreate(savedInstanceState)
         mapView?.getMapAsync { mapboxMap ->
@@ -96,8 +145,6 @@ class MainActivity : AppCompatActivity(), MapboxMap.OnMapClickListener {
             }
         }
     }
-
-    //////////////////////// OTHER FCNS ////////////////////////
 
     override fun onMapClick(point: LatLng): Boolean {
         if (mapBoxMap != null) {

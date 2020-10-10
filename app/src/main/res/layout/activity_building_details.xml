@@ -122,6 +122,12 @@
 
         </androidx.cardview.widget.CardView>
 
+        <Button
+            android:id="@+id/getDirectionsBtn"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/get_directions"/>
+
     </LinearLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>
