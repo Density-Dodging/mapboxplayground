@@ -3,17 +3,25 @@ package com.bignerdranch.android.mapboxplayground
 // geo json
 
 import android.graphics.Color
+import android.graphics.Color.YELLOW
 import android.graphics.Color.parseColor
+import android.graphics.PointF
 import android.os.Bundle
+import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
 import com.mapbox.geojson.Feature
 import com.mapbox.geojson.FeatureCollection
 import com.mapbox.geojson.Point
 import com.mapbox.mapboxsdk.Mapbox
+import com.mapbox.mapboxsdk.geometry.LatLng
 import com.mapbox.mapboxsdk.maps.MapView
+import com.mapbox.mapboxsdk.maps.MapboxMap
 import com.mapbox.mapboxsdk.maps.Style
 import com.mapbox.mapboxsdk.style.expressions.Expression.*
-import com.mapbox.mapboxsdk.style.layers.*
+import com.mapbox.mapboxsdk.style.layers.CircleLayer
+import com.mapbox.mapboxsdk.style.layers.FillExtrusionLayer
+import com.mapbox.mapboxsdk.style.layers.LineLayer
+import com.mapbox.mapboxsdk.style.layers.Property
 import com.mapbox.mapboxsdk.style.layers.PropertyFactory.*
 import com.mapbox.mapboxsdk.style.sources.GeoJsonOptions
 import com.mapbox.mapboxsdk.style.sources.GeoJsonSource
@@ -29,8 +37,10 @@ private const val RED_CIRCLE_LAYER_ID = "red_buildings"
 private const val RED_BUILDINGS_SOURCE_ID = "red_buildings_source"
 
 private const val BUILDING_NAME = "building_name"
+private const val BUILDING_FLOORS = "building_floors"
+private const val BUILDING_PEOPLE = "building_people"
 
-class MainActivity : AppCompatActivity() {
+class MainActivity : AppCompatActivity(), MapboxMap.OnMapClickListener {
     private var mapView: MapView? = null
     private var buildingGreenCollection: FeatureCollection? = null
     private var buildingYellowCollection: FeatureCollection? = null
@@ -38,6 +48,7 @@ class MainActivity : AppCompatActivity() {
     private lateinit var lineOne: FeatureCollection
     private lateinit var lineTwo: FeatureCollection
     private var buildingMarkers: MapRepository = MapRepository.get()
+    private var mapBoxMap: MapboxMap? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -49,6 +60,7 @@ class MainActivity : AppCompatActivity() {
         mapView?.onCreate(savedInstanceState)
         mapView?.getMapAsync { mapboxMap ->
 
+            mapBoxMap = mapboxMap
             mapboxMap.setStyle(Style.MAPBOX_STREETS) {
                 // Map is set up and the style has loaded. Now you can add data or make other map adjustments
 
@@ -80,6 +92,7 @@ class MainActivity : AppCompatActivity() {
                 it.addLayer(fillExtrusionLayer)
 
                 displayBuildingMarkerLayers(it)
+                mapboxMap.addOnMapClickListener(this)
             }
         }
     }
@@ -90,7 +103,10 @@ class MainActivity : AppCompatActivity() {
         style.addSource(GeoJsonSource(GREEN_BUILDINGS_SOURCE_ID, buildingGreenCollection))
 
         // Add the GreenBuildingLayer
-        val greenCircleLayer: CircleLayer = CircleLayer(GREEN_CIRCLE_LAYER_ID, GREEN_BUILDINGS_SOURCE_ID)
+        val greenCircleLayer: CircleLayer = CircleLayer(
+            GREEN_CIRCLE_LAYER_ID,
+            GREEN_BUILDINGS_SOURCE_ID
+        )
             .withProperties(
                 circleRadius(
                     interpolate(
@@ -107,7 +123,10 @@ class MainActivity : AppCompatActivity() {
         style.addSource(GeoJsonSource(YELLOW_BUILDINGS_SOURCE_ID, buildingYellowCollection))
 
         // Add the GreenBuildingLayer
-        val yellowCircleLayer: CircleLayer = CircleLayer(YELLOW_CIRCLE_LAYER_ID, YELLOW_BUILDINGS_SOURCE_ID)
+        val yellowCircleLayer: CircleLayer = CircleLayer(
+            YELLOW_CIRCLE_LAYER_ID,
+            YELLOW_BUILDINGS_SOURCE_ID
+        )
             .withProperties(
                 circleRadius(
                     interpolate(
@@ -143,9 +162,15 @@ class MainActivity : AppCompatActivity() {
         val yellowMarkerCoordinates: MutableList<Feature> = ArrayList()
         val redMarkerCoordinates: MutableList<Feature> = ArrayList()
 
+        //building name
 
         buildingMarkers.buildingCoordinates.forEach { building ->
-            val feature = Feature.fromGeometry(Point.fromLngLat(building.longitude, building.latitude))
+            val feature = Feature.fromGeometry(
+                Point.fromLngLat(
+                    building.longitude,
+                    building.latitude
+                )
+            )
             feature.addStringProperty(BUILDING_NAME, building.buildingName)
 
             when (building.densityLevel) {
@@ -153,6 +178,9 @@ class MainActivity : AppCompatActivity() {
                 2 -> yellowMarkerCoordinates.add(feature)
                 else -> greenMarkerCoordinates.add(feature)
             }
+
+            feature.addStringProperty(BUILDING_PEOPLE, building.people.toString())
+            feature.addNumberProperty(BUILDING_FLOORS, building.floors)
 
         }
 
@@ -198,6 +226,56 @@ class MainActivity : AppCompatActivity() {
                     lineColor(parseColor("#3bb2d0"))
                 )
         )
+    }
+
+    override fun onMapClick(point: LatLng): Boolean {
+        if (mapBoxMap != null) {
+            handleClickBuilding(mapBoxMap!!.getProjection().toScreenLocation(point))
+        }
+        return true
+    }
+
+    /**
+     * This method handles click events for both layers.
+     *
+     *
+     * The PROPERTY_SELECTED feature property is set to its opposite, so
+     * that the visual toggling between circles and icons is correct.
+     *
+     * @param screenPoint the point on screen clicked
+     */
+    private fun handleClickBuilding(screenPoint: PointF): Boolean {
+        val selectedGreenCircleFeatureList: List<Feature> =
+            mapBoxMap?.queryRenderedFeatures(screenPoint, GREEN_CIRCLE_LAYER_ID) ?: listOf()
+        val selectedYellowCircleFeatureList: List<Feature> =
+            mapBoxMap?.queryRenderedFeatures(screenPoint, YELLOW_CIRCLE_LAYER_ID) ?: listOf()
+        val selectedRedCircleFeatureList: List<Feature> =
+            mapBoxMap?.queryRenderedFeatures(screenPoint, RED_CIRCLE_LAYER_ID) ?: listOf()
+        if (selectedGreenCircleFeatureList.isNotEmpty()) {
+            val selectedCircleFeature = selectedGreenCircleFeatureList[0]
+            var buildingName = selectedCircleFeature.getStringProperty(BUILDING_NAME)
+            var buildingPopulation =  selectedCircleFeature.getStringProperty(BUILDING_PEOPLE)
+            var buildingFloors = selectedCircleFeature.getNumberProperty(BUILDING_FLOORS)
+            Log.d("GreenDot", buildingName + buildingPopulation+ "$buildingFloors")
+
+        }
+
+        if (selectedYellowCircleFeatureList.isNotEmpty()) {
+            val selectedCircleFeature = selectedYellowCircleFeatureList[0]
+            var buildingName = selectedCircleFeature.getStringProperty(BUILDING_NAME)
+            var buildingPopulation =  selectedCircleFeature.getStringProperty(BUILDING_PEOPLE)
+            var buildingFloors = selectedCircleFeature.getNumberProperty(BUILDING_FLOORS)
+            Log.d("YellowDot", buildingName + buildingPopulation+ "$buildingFloors")
+        }
+
+        if (selectedRedCircleFeatureList.isNotEmpty()) {
+            val selectedCircleFeature = selectedRedCircleFeatureList[0]
+            var buildingName = selectedCircleFeature.getStringProperty(BUILDING_NAME)
+            var buildingPopulation =  selectedCircleFeature.getStringProperty(BUILDING_PEOPLE)
+            var buildingFloors = selectedCircleFeature.getNumberProperty(BUILDING_FLOORS)
+            Log.d("RedDot", buildingName + buildingPopulation+ "$buildingFloors")
+        }
+        return true
     }
 }
 
