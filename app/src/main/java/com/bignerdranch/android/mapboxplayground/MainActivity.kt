@@ -3,14 +3,17 @@ package com.bignerdranch.android.mapboxplayground
 // geo json
 
 import android.app.Activity
+import android.content.Context
 import android.content.Intent
 import android.graphics.Color
 import android.graphics.Color.parseColor
 import android.graphics.PointF
 import android.os.Bundle
 import android.util.Log
-import android.widget.ListView
-import android.widget.SearchView
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
+import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
 import com.mapbox.geojson.Feature
 import com.mapbox.geojson.FeatureCollection
@@ -53,7 +56,7 @@ class MainActivity : AppCompatActivity(), MapboxMap.OnMapClickListener {
     private var buildingMarkers: MapRepository = MapRepository.get()
     private var mapBoxMap: MapboxMap? = null
 
-    private lateinit var searchBar: SearchView
+    private lateinit var searchBar: AutoCompleteTextView
     private lateinit var suggestionsList: ListView
 
     //////////////////////// LIFECYCLE ////////////////////////
@@ -77,11 +80,73 @@ class MainActivity : AppCompatActivity(), MapboxMap.OnMapClickListener {
             return
         }
         if (requestCode == REQUEST_CODE_BUILDING_INFO) {
-            val id  = data?.getStringExtra(DIRECTIONS_REQUESTED_FOR_ID).toString()
+            val id = data?.getStringExtra(DIRECTIONS_REQUESTED_FOR_ID).toString()
             var building = buildingMarkers.getBuildingFromId(id)
 
             if (building != null) {
                 Log.d("RESULTACTIVITY", building.buildingName)
+            }
+        }
+    }
+
+    inner class BuildingAdapter(
+        context: Context,
+        private val layoutResource: Int,
+        private val allBuildings: List<Building>
+    ) : ArrayAdapter<Building>(context, layoutResource, allBuildings), Filterable {
+        private var filteredBuildings: List<Building> = allBuildings
+
+        override fun getCount(): Int {
+            return filteredBuildings.size
+        }
+
+        override fun getItem(p0: Int): Building? {
+            return filteredBuildings[p0]
+        }
+
+        override fun getItemId(p0: Int): Long {
+            // Or just return p0
+
+            val latStr = filteredBuildings[p0].latitude.toString()
+            var lonStr = filteredBuildings[p0].longitude.toString()
+
+            var uniqueId = latStr
+                .substring(4, latStr.length) + lonStr.substring(4, lonStr.length)
+
+            return uniqueId.toLong()
+        }
+
+        override fun getView(position: Int, convertView: View?, parent: ViewGroup): View {
+            val view: TextView = convertView as TextView? ?: LayoutInflater.from(context)
+                .inflate(layoutResource, parent, false) as TextView
+            view.text =
+                "${allBuildings[position].buildingName} | ${allBuildings[position].id})"
+            return view
+        }
+
+        override fun getFilter(): Filter {
+            return object : Filter() {
+                override fun publishResults(
+                    charSequence: CharSequence?,
+                    filterResults: Filter.FilterResults
+                ) {
+                    filteredBuildings = filterResults.values as List<Building>
+                    notifyDataSetChanged()
+                }
+
+                override fun performFiltering(charSequence: CharSequence?): Filter.FilterResults {
+                    val queryString = charSequence?.toString()?.toLowerCase()
+
+                    val filterResults = Filter.FilterResults()
+                    filterResults.values = if (queryString == null || queryString.isEmpty())
+                        allBuildings
+                    else
+                        allBuildings.filter {
+                            it.buildingName.toLowerCase().contains(queryString) ||
+                                    it.id.toLowerCase().contains(queryString)
+                        }
+                    return filterResults
+                }
             }
         }
     }
@@ -92,16 +157,23 @@ class MainActivity : AppCompatActivity(), MapboxMap.OnMapClickListener {
         searchBar = findViewById(R.id.buildingSearch)
         suggestionsList = findViewById(R.id.buildingSuggestions)
 
-        searchBar.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
-            override fun onQueryTextSubmit(p0: String?): Boolean {
-                //Performs search when user hit the search button on the keyboard
-                return false
-            }
+        val adapter =
+            BuildingAdapter(this, android.R.layout.simple_list_item_1, buildingMarkers.buildings)
+        //suggestionsList.adapter = adapter
 
-            override fun onQueryTextChange(p0: String?): Boolean {
-                return false
-            }
-        })
+        searchBar.setAdapter(adapter)
+
+//        searchBar.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
+//            override fun onQueryTextSubmit(p0: String?): Boolean {
+//                //Performs search when user hit the search button on the keyboard
+//                return false
+//            }
+//
+//            override fun onQueryTextChange(p0: String?): Boolean {
+//                adapter.filter.filter(p0)
+//                return false
+//            }
+//        })
     }
 
     private fun initializeMap(savedInstanceState: Bundle?) {
