@@ -3,14 +3,18 @@ package com.bignerdranch.android.mapboxplayground
 // geo json
 
 import android.app.Activity
+import android.content.Context
 import android.content.Intent
 import android.graphics.Color
 import android.graphics.Color.parseColor
 import android.graphics.PointF
 import android.os.Bundle
 import android.util.Log
-import android.widget.ListView
-import android.widget.SearchView
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
+import android.view.inputmethod.InputMethodManager
+import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
 import com.mapbox.geojson.Feature
 import com.mapbox.geojson.FeatureCollection
@@ -53,7 +57,7 @@ class MainActivity : AppCompatActivity(), MapboxMap.OnMapClickListener {
     private var buildingMarkers: MapRepository = MapRepository.get()
     private var mapBoxMap: MapboxMap? = null
 
-    private lateinit var searchBar: SearchView
+    private lateinit var searchBar: CustomAutoCompleteTextView
     private lateinit var suggestionsList: ListView
 
     //////////////////////// LIFECYCLE ////////////////////////
@@ -77,7 +81,7 @@ class MainActivity : AppCompatActivity(), MapboxMap.OnMapClickListener {
             return
         }
         if (requestCode == REQUEST_CODE_BUILDING_INFO) {
-            val id  = data?.getStringExtra(DIRECTIONS_REQUESTED_FOR_ID).toString()
+            val id = data?.getStringExtra(DIRECTIONS_REQUESTED_FOR_ID).toString()
             var building = buildingMarkers.getBuildingFromId(id)
 
             if (building != null) {
@@ -86,22 +90,112 @@ class MainActivity : AppCompatActivity(), MapboxMap.OnMapClickListener {
         }
     }
 
+    inner class BuildingAdapter(
+        context: Context,
+        private val layoutResource: Int,
+        private val allBuildings: List<Building>
+    ) : ArrayAdapter<Building>(context, layoutResource, allBuildings), Filterable {
+        private var filteredBuildings: List<Building> = allBuildings
+
+        override fun getCount(): Int {
+            return filteredBuildings.size
+        }
+
+        override fun getItem(p0: Int): Building? {
+            return filteredBuildings[p0]
+        }
+
+        override fun getItemId(p0: Int): Long {
+            // Or just return p0
+
+            val latStr = filteredBuildings[p0].latitude.toString()
+            var lonStr = filteredBuildings[p0].longitude.toString()
+
+            var uniqueId = latStr
+                .substring(4, latStr.length) + lonStr.substring(4, lonStr.length)
+
+            return p0.toLong()
+        }
+
+        override fun getView(position: Int, convertView: View?, parent: ViewGroup): View {
+            val view: TextView = convertView as TextView? ?: LayoutInflater.from(context)
+                .inflate(layoutResource, parent, false) as TextView
+            view.text =
+                "${filteredBuildings[position].buildingName} | ${filteredBuildings[position].id}"
+            return view
+        }
+
+        override fun getFilter(): Filter {
+            return object : Filter() {
+                override fun publishResults(
+                    charSequence: CharSequence?,
+                    filterResults: Filter.FilterResults
+                ) {
+                    filteredBuildings = filterResults.values as List<Building>
+                    notifyDataSetChanged()
+                }
+
+                override fun performFiltering(charSequence: CharSequence?): FilterResults {
+                    val queryString = charSequence?.toString()?.toLowerCase()
+
+                    val filterResults = FilterResults()
+                    filterResults.values = when (queryString == null || queryString.isEmpty()) {
+                        true -> allBuildings
+                        else -> allBuildings.filter {
+                            it.buildingName.toLowerCase().contains(queryString) ||
+                                    it.id.toLowerCase().contains(queryString)
+                        }
+                    }
+                    return filterResults
+                }
+            }
+        }
+    }
+
     //////////////////////// OTHER FCNS ////////////////////////
 
     private fun initializeUiElements() {
         searchBar = findViewById(R.id.buildingSearch)
-        suggestionsList = findViewById(R.id.buildingSuggestions)
 
-        searchBar.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
-            override fun onQueryTextSubmit(p0: String?): Boolean {
-                //Performs search when user hit the search button on the keyboard
-                return false
-            }
+        searchBar.setOnClickListener {
 
-            override fun onQueryTextChange(p0: String?): Boolean {
-                return false
+        }
+
+        buildingMarkers.buildings.observe(this) {
+            val adapter =
+                BuildingAdapter(this, android.R.layout.simple_list_item_1, it)
+
+            searchBar.setAdapter(adapter)
+        }
+
+        searchBar.setOnItemClickListener { parent, _, position, id ->
+            val selectedBuilding = parent.adapter.getItem(position) as Building?
+            searchBar.setText(selectedBuilding?.buildingName)
+            //
+            if (selectedBuilding != null) {
+                handleDisplayingDirections(selectedBuilding)
+                hideSoftKeyboard(this)
             }
-        })
+        }
+    }
+
+    private fun hideSoftKeyboard(activity: Activity) {
+        val inputMethodManager: InputMethodManager = activity.getSystemService(
+            INPUT_METHOD_SERVICE
+        ) as InputMethodManager
+        inputMethodManager.hideSoftInputFromWindow(
+            activity.currentFocus!!.windowToken, 0
+        )
+    }
+
+    private fun handleDisplayingDirections(buildingTo: Building) {
+        // check user permissions about geoposition
+
+        // get users location using mapbox api
+
+        // make back-end request (user's location - building id)
+
+        // then, draw the paths on the map
     }
 
     private fun initializeMap(savedInstanceState: Bundle?) {
@@ -113,34 +207,15 @@ class MainActivity : AppCompatActivity(), MapboxMap.OnMapClickListener {
             mapboxMap.setStyle(Style.MAPBOX_STREETS) {
                 // Map is set up and the style has loaded. Now you can add data or make other map adjustments
 
-                // init marker positions
-                initBuildingsCollection()
-
-//                // LINES
-//                generateLineOne()
-//                drawLines(lineOne, it)
-
                 // 3D - BUILDINGS
-                val fillExtrusionLayer = FillExtrusionLayer("3d-buildings", "composite")
-                fillExtrusionLayer.sourceLayer = "building"
-                fillExtrusionLayer.setFilter(eq(get("extrude"), "true"))
-                fillExtrusionLayer.minZoom = 15f
-                fillExtrusionLayer.setProperties(
-                    fillExtrusionColor(Color.LTGRAY),
-                    fillExtrusionHeight(
-                        interpolate(
-                            exponential(1f),
-                            zoom(),
-                            stop(15, literal(0)),
-                            stop(16, get("height"))
-                        )
-                    ),
-                    fillExtrusionBase(get("min_height")),
-                    fillExtrusionOpacity(0.6f)
-                )
-                it.addLayer(fillExtrusionLayer)
+                displayBuildings3D(it)
 
-                displayBuildingMarkerLayers(it)
+                buildingMarkers.buildings.observe(this) { buildings ->
+                    // init marker positions
+                    initBuildingsCollection(buildings)
+                    displayBuildingMarkerLayers(it)
+                }
+
                 mapboxMap.addOnMapClickListener(this)
             }
         }
@@ -151,6 +226,27 @@ class MainActivity : AppCompatActivity(), MapboxMap.OnMapClickListener {
             handleClickBuilding(mapBoxMap!!.getProjection().toScreenLocation(point))
         }
         return true
+    }
+
+    private fun displayBuildings3D(style: Style) {
+        val fillExtrusionLayer = FillExtrusionLayer("3d-buildings", "composite")
+        fillExtrusionLayer.sourceLayer = "building"
+        fillExtrusionLayer.setFilter(eq(get("extrude"), "true"))
+        fillExtrusionLayer.minZoom = 15f
+        fillExtrusionLayer.setProperties(
+            fillExtrusionColor(Color.LTGRAY),
+            fillExtrusionHeight(
+                interpolate(
+                    exponential(1f),
+                    zoom(),
+                    stop(15, literal(0)),
+                    stop(16, get("height"))
+                )
+            ),
+            fillExtrusionBase(get("min_height")),
+            fillExtrusionOpacity(0.6f)
+        )
+        style.addLayer(fillExtrusionLayer)
     }
 
     private fun displayBuildingMarkerLayers(style: Style) {
@@ -213,14 +309,14 @@ class MainActivity : AppCompatActivity(), MapboxMap.OnMapClickListener {
         style.addLayer(redCircleLayer)
     }
 
-    private fun initBuildingsCollection() {
+    private fun initBuildingsCollection(buildings: List<Building>) {
         val greenMarkerCoordinates: MutableList<Feature> = ArrayList()
         val yellowMarkerCoordinates: MutableList<Feature> = ArrayList()
         val redMarkerCoordinates: MutableList<Feature> = ArrayList()
 
         //building name
 
-        buildingMarkers.buildings.forEach { building ->
+        buildings.forEach { building ->
             val feature = Feature.fromGeometry(
                 Point.fromLngLat(
                     building.longitude,

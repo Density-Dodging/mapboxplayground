@@ -5,7 +5,9 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     xmlns:mapbox="http://schemas.android.com/apk/res-auto"
-    tools:context=".MainActivity">
+    tools:context=".MainActivity"
+    android:focusable="true"
+    android:focusableInTouchMode="true">
 
     <com.mapbox.mapboxsdk.maps.MapView
         android:id="@+id/mapView"
@@ -23,23 +25,26 @@
     </com.mapbox.mapboxsdk.maps.MapView>
 
     <LinearLayout
+        android:id="@+id/search_container"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         app:layout_constraintTop_toTopOf="parent"
         android:orientation="vertical">
 
-        <SearchView
+        <com.bignerdranch.android.mapboxplayground.CustomAutoCompleteTextView
             android:id="@+id/buildingSearch"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
+            android:layout_height="wrap_content"
             android:outlineProvider="background"
+            android:minHeight="50dp"
+            android:maxHeight="300dp"
             android:queryHint="Search by building's short or long name"
-            android:background="#FFF"/>
-        <ListView
-            android:id="@+id/buildingSuggestions"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:layout_below="@id/buildingSearch"/>
+            android:background="#FFF"
+            android:drawableLeft="@drawable/ic_baseline_location"
+            android:completionThreshold="0"
+            android:inputType="textPhonetic"
+            android:dropDownHeight="wrap_content"
+            />
     </LinearLayout>
 
     <LinearLayout
