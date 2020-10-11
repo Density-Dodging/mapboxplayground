@@ -9,11 +9,11 @@ import android.graphics.Color
 import android.graphics.Color.parseColor
 import android.graphics.PointF
 import android.os.Bundle
-import android.util.AttributeSet
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.view.inputmethod.InputMethodManager
 import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
 import com.mapbox.geojson.Feature
@@ -174,8 +174,18 @@ class MainActivity : AppCompatActivity(), MapboxMap.OnMapClickListener {
             //
             if (selectedBuilding != null) {
                 handleDisplayingDirections(selectedBuilding)
+                hideSoftKeyboard(this)
             }
         }
+    }
+
+    private fun hideSoftKeyboard(activity: Activity) {
+        val inputMethodManager: InputMethodManager = activity.getSystemService(
+            INPUT_METHOD_SERVICE
+        ) as InputMethodManager
+        inputMethodManager.hideSoftInputFromWindow(
+            activity.currentFocus!!.windowToken, 0
+        )
     }
 
     private fun handleDisplayingDirections(buildingTo: Building) {
@@ -218,7 +228,7 @@ class MainActivity : AppCompatActivity(), MapboxMap.OnMapClickListener {
         return true
     }
 
-    private fun displayBuildings3D(style: Style){
+    private fun displayBuildings3D(style: Style) {
         val fillExtrusionLayer = FillExtrusionLayer("3d-buildings", "composite")
         fillExtrusionLayer.sourceLayer = "building"
         fillExtrusionLayer.setFilter(eq(get("extrude"), "true"))
