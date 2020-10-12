@@ -15,11 +15,34 @@ import java.util.*
 class MapRepository private constructor(context: Context) {
 
     var buildings: MutableLiveData<List<Building>> = MutableLiveData()
+    var pathFastest: MutableLiveData<List<List<Double>>> = MutableLiveData()
+    var pathSafest: MutableLiveData<List<List<Double>>> = MutableLiveData()
 
     private val retrofit: Retrofit = Retrofit.Builder().baseUrl("https://density-dodger.herokuapp.com/api/")
         .addConverterFactory(GsonConverterFactory.create()).build()
     private val backendApi: BackendRequests = retrofit.create(BackendRequests::class.java)
 
+    fun loadRoute(userLat: Double, userLon: Double, locationId: String, safe: Boolean) {
+//        val routeRequest: Call<List<List<Double>>> = backendApi.loadRoute(userLat, userLon, locationId, safe)
+        val routeRequest: Call<List<List<Double>>> = backendApi.testRoute()
+
+        routeRequest.enqueue(object : Callback<List<List<Double>>> {
+            override fun onFailure(call: Call<List<List<Double>>>, t: Throwable) {
+                Log.e("TAG", "Failed to fetch buildings", t)
+            }
+
+            override fun onResponse(call: Call<List<List<Double>>>, response: Response<List<List<Double>>>) {
+                var pathCoordinates: List<List<Double>>? = response.body()
+
+                if (pathCoordinates != null) {
+                    when (safe) {
+                        true -> pathSafest.value = pathCoordinates
+                        false -> pathFastest.value = pathCoordinates
+                    }
+                }
+            }
+        })
+    }
 
     fun getBuildingFromId(buildingId: String): Building? {
         // find the building with the given id in our repository
@@ -59,19 +82,6 @@ class MapRepository private constructor(context: Context) {
     // used for adding nodes into map
     init{
         loadBuildings()
-        // dummy data -> replace
-//        var foisie: Building = Building("FIS", "Foisie Innovation",
-//            42.274340, -71.808872,2, listOf(20,30), 2)
-//
-//        var CC: Building = Building("CC", "Campus Center",
-//            42.274824,-71.808378, 3, listOf(30,40,10), 3)
-//
-//        var recCenter: Building = Building("SRC", "WPI Sports and Recreation Center",
-//            42.274149,-71.810568, 3, listOf(30,40,10), 1)
-//
-//        buildings.add(foisie)
-//        buildings.add(CC)
-//        buildings.add(recCenter)
     }
 
     companion object {
@@ -86,7 +96,5 @@ class MapRepository private constructor(context: Context) {
         fun get(): MapRepository {
             return INSTANCE ?: throw IllegalStateException("CrimeRepository must be initialized")
         }
-
     }
-
 }
