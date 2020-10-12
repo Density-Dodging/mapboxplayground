@@ -33,7 +33,6 @@ class BuildingDetailsActivity : AppCompatActivity() {
 
     private var imageURL = "https://www.wpi.edu/sites/default/files/2019/09/24/Alden%20Memorial.jpg"
 
-
     //////////////////////// LIFECYCLE ////////////////////////
 
     @RequiresApi(Build.VERSION_CODES.N)
