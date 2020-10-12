@@ -4,4 +4,7 @@
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="get_directions">Get Directions</string>
+    <string name="building_name">Building Name</string>
+    <string name="density_level">Level</string>
+    <string name="overall_density_level">Density Level</string>
 </resources>
