@@ -119,12 +119,10 @@ class MainActivity : AppCompatActivity(), MapboxMap.OnMapClickListener, Permissi
         }
         if (requestCode == REQUEST_CODE_BUILDING_INFO) {
             val id = data?.getStringExtra(DIRECTIONS_REQUESTED_FOR_ID).toString()
-            var building = buildingMarkers.getBuildingFromId(id)
-
-            if (building != null) {
-                buildingTo = building
-                handleDisplayingDirections()
-            }
+            requestDirections(id)
+        } else if (requestCode == REQUEST_CODE_STUDY_SPACES) {
+            val id = data?.getStringExtra(DIRECTIONS_REQUESTED_FOR_ID).toString()
+            requestDirections(id)
         }
     }
 
@@ -173,13 +171,23 @@ class MainActivity : AppCompatActivity(), MapboxMap.OnMapClickListener, Permissi
 
     //////////////////////// OTHER FCNS ////////////////////////
 
+    private fun requestDirections(buildingId: String) {
+        var building = buildingMarkers.getBuildingFromId(buildingId)
+
+        if (building != null) {
+            buildingTo = building
+            searchBar.setText(buildingTo!!.buildingName, false)
+            handleDisplayingDirections()
+        }
+    }
+
     private fun initializeUiElements() {
         mapView = findViewById(R.id.mapView)
         searchBar = findViewById(R.id.buildingSearch)
         studySpacesButton = findViewById(R.id.studySpaces)
 
         studySpacesButton.setOnClickListener {
-
+            startStudySpacesActivity()
         }
 
         buildingMarkers.buildings.observe(this) {
@@ -198,7 +206,7 @@ class MainActivity : AppCompatActivity(), MapboxMap.OnMapClickListener, Permissi
     }
 
     private fun startStudySpacesActivity() {
-        val intent = BuildingDetailsActivity.newIntent(this@MainActivity)
+        val intent = StudySpaces.newIntent(this@MainActivity)
         startActivityForResult(intent, REQUEST_CODE_STUDY_SPACES)
     }
 
@@ -262,6 +270,10 @@ class MainActivity : AppCompatActivity(), MapboxMap.OnMapClickListener, Permissi
                     initBuildingsCollection(buildings)
                     displayBuildingMarkerLayers(it)
                 }
+
+                // init route layers and sources
+                initRouteSourceAndLayer(true)
+                initRouteSourceAndLayer(false)
 
                 // routes
                 buildingMarkers.pathFastest.observe(this) { fastestPath ->
@@ -379,9 +391,7 @@ class MainActivity : AppCompatActivity(), MapboxMap.OnMapClickListener, Permissi
         style.addLayer(fillExtrusionLayer)
     }
 
-    private fun displayRoute(path: List<List<Double>>, safe: Boolean) {
-        var routeCoordinates = ArrayList<Point>()
-
+    private fun initRouteSourceAndLayer(safe: Boolean) {
         var sourceId: String = FAST_LINE_SOURCE
         var layerId: String = FAST_LINE_LAYER_ID
         var color: String = FAST_LINE_COLOR
@@ -392,17 +402,14 @@ class MainActivity : AppCompatActivity(), MapboxMap.OnMapClickListener, Permissi
             color = SAFE_LINE_COLOR
         }
 
-        path.forEach { coordinate ->
-            routeCoordinates.add(Point.fromLngLat(coordinate[1], coordinate[0]))
-        }
-
+        // FAST LINE
         mapStyle.addSource(
             GeoJsonSource(
                 sourceId,
                 FeatureCollection.fromFeatures(
                     arrayOf(
                         Feature.fromGeometry(
-                            LineString.fromLngLats(routeCoordinates)
+                            LineString.fromLngLats(listOf())
                         )
                     )
                 )
@@ -416,6 +423,30 @@ class MainActivity : AppCompatActivity(), MapboxMap.OnMapClickListener, Permissi
                 lineWidth(6f),
                 lineOpacity(1f),
                 lineColor(parseColor(color))
+            )
+        )
+    }
+
+    private fun displayRoute(path: List<List<Double>>, safe: Boolean) {
+        var routeCoordinates = ArrayList<Point>()
+
+        var sourceId: String = FAST_LINE_SOURCE
+        if (safe) {
+            sourceId = SAFE_LINE_SOURCE
+        }
+
+        path.forEach { coordinate ->
+            routeCoordinates.add(Point.fromLngLat(coordinate[1], coordinate[0]))
+        }
+
+        var routeSource: GeoJsonSource? = mapStyle.getSourceAs(sourceId)
+        routeSource?.setGeoJson(
+            FeatureCollection.fromFeatures(
+                arrayOf(
+                    Feature.fromGeometry(
+                        LineString.fromLngLats(routeCoordinates)
+                    )
+                )
             )
         )
     }
