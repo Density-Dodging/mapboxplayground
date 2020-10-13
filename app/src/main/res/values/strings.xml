@@ -10,4 +10,5 @@
     <string name="user_location_permission_explanation">Permit our app to get your location so that you will be able to navigate to different places on campus</string>
     <string name="user_location_permission_not_granted">Permission was not granted :(</string>
     <string name="new_location">new Location</string>
+    <string name="search_placeholder">Search here</string>
 </resources>

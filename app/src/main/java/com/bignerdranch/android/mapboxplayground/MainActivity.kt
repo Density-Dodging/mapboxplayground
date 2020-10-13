@@ -42,6 +42,7 @@ import com.mapbox.mapboxsdk.style.layers.*
 import com.mapbox.mapboxsdk.style.layers.PropertyFactory.*
 import com.mapbox.mapboxsdk.style.sources.GeoJsonOptions
 import com.mapbox.mapboxsdk.style.sources.GeoJsonSource
+import kotlinx.android.synthetic.main.activity_main.*
 import java.lang.ref.WeakReference
 
 
@@ -73,11 +74,13 @@ class MainActivity : AppCompatActivity(), MapboxMap.OnMapClickListener, Permissi
     private val DEFAULT_MAX_WAIT_TIME = DEFAULT_INTERVAL_IN_MILLISECONDS * 5
 
     private lateinit var mapView: MapView
+
+    private lateinit var myClassesBtn: Button
+
     private var buildingGreenCollection: FeatureCollection? = null
     private var buildingYellowCollection: FeatureCollection? = null
     private var buildingRedCollection: FeatureCollection? = null
-    private lateinit var lineOne: FeatureCollection
-    private lateinit var lineTwo: FeatureCollection
+
     private var buildingMarkers: MapRepository = MapRepository.get()
     private lateinit var mapBoxMap: MapboxMap
 
@@ -184,11 +187,21 @@ class MainActivity : AppCompatActivity(), MapboxMap.OnMapClickListener, Permissi
     private fun initializeUiElements() {
         mapView = findViewById(R.id.mapView)
         searchBar = findViewById(R.id.buildingSearch)
+
         studySpacesButton = findViewById(R.id.studySpaces)
 
         studySpacesButton.setOnClickListener {
             startStudySpacesActivity()
         }
+
+        myClassesBtn = findViewById(R.id.myClasses)
+
+
+        myClassesBtn.setOnClickListener {
+            val intent = Intent(this, MyClasses::class.java)
+            startActivity(intent)
+        }
+
 
         buildingMarkers.buildings.observe(this) {
             val adapter =
