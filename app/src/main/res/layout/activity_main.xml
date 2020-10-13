@@ -35,16 +35,18 @@
             android:id="@+id/buildingSearch"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:outlineProvider="background"
-            android:minHeight="50dp"
-            android:maxHeight="300dp"
-            android:queryHint="Search by building's short or long name"
+            android:layout_margin="5dp"
+            android:shadowColor="@color/cardview_shadow_start_color"
             android:background="#FFF"
-            android:drawableLeft="@drawable/ic_baseline_location"
             android:completionThreshold="0"
-            android:inputType="textPhonetic"
+            android:drawableStart="?android:attr/actionModeWebSearchDrawable"
+            android:paddingStart="10dp"
             android:dropDownHeight="wrap_content"
-            />
+            android:inputType="textPhonetic"
+            android:maxHeight="300dp"
+            android:minHeight="50dp"
+            android:outlineProvider="background"
+            android:hint="@string/search_placeholder"/>
     </LinearLayout>
 
     <LinearLayout
@@ -54,18 +56,18 @@
         android:background="#2A2E43"
         app:layout_constraintBottom_toBottomOf="parent">
 
-        <Button
-            android:id="@+id/button"
-            android:layout_width="wrap_content"
-            android:layout_height="match_parent"
-            android:layout_weight="1"
-            android:background="#353A50"
-            android:layout_margin="7dp"
-            android:text="Walking Routes"
-            android:textSize="12sp"
-            android:textAllCaps="false"
-            android:textColor="#FFF"
-            android:drawableTop="@drawable/ic_baseline_map" />
+<!--        <Button-->
+<!--            android:id="@+id/button"-->
+<!--            android:layout_width="wrap_content"-->
+<!--            android:layout_height="match_parent"-->
+<!--            android:layout_weight="1"-->
+<!--            android:background="#353A50"-->
+<!--            android:layout_margin="7dp"-->
+<!--            android:text="Walking Routes"-->
+<!--            android:textSize="12sp"-->
+<!--            android:textAllCaps="false"-->
+<!--            android:textColor="#FFF"-->
+<!--            android:drawableTop="@drawable/ic_baseline_map" />-->
 
         <Button
             android:id="@+id/button1"
