@@ -23,8 +23,8 @@ class MapRepository private constructor(context: Context) {
     private val backendApi: BackendRequests = retrofit.create(BackendRequests::class.java)
 
     fun loadRoute(userLat: Double, userLon: Double, locationId: String, safe: Boolean) {
-//        val routeRequest: Call<List<List<Double>>> = backendApi.loadRoute(userLat, userLon, locationId, safe)
-        val routeRequest: Call<List<List<Double>>> = backendApi.testRoute()
+        val routeRequest: Call<List<List<Double>>> = backendApi.loadRoute(userLat, userLon, locationId, safe)
+        //val routeRequest: Call<List<List<Double>>> = backendApi.testRoute()
 
         routeRequest.enqueue(object : Callback<List<List<Double>>> {
             override fun onFailure(call: Call<List<List<Double>>>, t: Throwable) {

@@ -66,8 +66,12 @@ private const val FAST_LINE_COLOR = "#eb34d5"
 const val BUILDING_ID = "building_id"
 
 const val REQUEST_CODE_BUILDING_INFO = 0
+const val REQUEST_CODE_STUDY_SPACES = 1
 
 class MainActivity : AppCompatActivity(), MapboxMap.OnMapClickListener, PermissionsListener {
+    private val DEFAULT_INTERVAL_IN_MILLISECONDS = 1000L
+    private val DEFAULT_MAX_WAIT_TIME = DEFAULT_INTERVAL_IN_MILLISECONDS * 5
+
     private lateinit var mapView: MapView
     private var buildingGreenCollection: FeatureCollection? = null
     private var buildingYellowCollection: FeatureCollection? = null
@@ -78,10 +82,8 @@ class MainActivity : AppCompatActivity(), MapboxMap.OnMapClickListener, Permissi
     private lateinit var mapBoxMap: MapboxMap
 
     private lateinit var searchBar: CustomAutoCompleteTextView
-    private lateinit var suggestionsList: ListView
+    private lateinit var studySpacesButton: Button
 
-    private val DEFAULT_INTERVAL_IN_MILLISECONDS = 1000L
-    private val DEFAULT_MAX_WAIT_TIME = DEFAULT_INTERVAL_IN_MILLISECONDS * 5
 
     private lateinit var locationEngine: LocationEngine
     private val callback: LocationChangeListeningActivityLocationCallback =
@@ -174,8 +176,9 @@ class MainActivity : AppCompatActivity(), MapboxMap.OnMapClickListener, Permissi
     private fun initializeUiElements() {
         mapView = findViewById(R.id.mapView)
         searchBar = findViewById(R.id.buildingSearch)
+        studySpacesButton = findViewById(R.id.studySpaces)
 
-        searchBar.setOnClickListener {
+        studySpacesButton.setOnClickListener {
 
         }
 
@@ -192,6 +195,11 @@ class MainActivity : AppCompatActivity(), MapboxMap.OnMapClickListener, Permissi
             handleDisplayingDirections()
             hideSoftKeyboard(this)
         }
+    }
+
+    private fun startStudySpacesActivity() {
+        val intent = BuildingDetailsActivity.newIntent(this@MainActivity)
+        startActivityForResult(intent, REQUEST_CODE_STUDY_SPACES)
     }
 
     private fun hideSoftKeyboard(activity: Activity) {
