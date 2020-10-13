@@ -114,15 +114,10 @@ class StudySpaces : AppCompatActivity() {
             val totalBuildingOccupancy: Int = calculateOccupancyInPercents(currentBuilding)
 
 
-            if (currentBuilding.imageURL != null) {
-                Picasso.get().load(currentBuilding.imageURL).into(buildingImage)
-            } else {
-                Picasso.get()
-                    .load("https://www.wpi.edu/sites/default/files/2019/09/24/Alden%20Memorial.jpg")
-                    .into(buildingImage)
-            }
+
+            Picasso.get().load(currentBuilding.url).into(buildingImage)
             buildingName.text = currentBuilding.buildingName
-            buildingOccupancy.text = "$totalBuildingOccupancy"
+            buildingOccupancy.text = "Occupancy: $totalBuildingOccupancy%"
 
             progressBar.progress = totalBuildingOccupancy
 

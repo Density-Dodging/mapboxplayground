@@ -31,7 +31,6 @@ class BuildingDetailsActivity : AppCompatActivity() {
     private lateinit var buildingImageView: ImageView
     private lateinit var densityProgressBar: ProgressBar
 
-    private var imageURL = "https://www.wpi.edu/sites/default/files/2019/09/24/Alden%20Memorial.jpg"
 
     //////////////////////// LIFECYCLE ////////////////////////
 
@@ -48,7 +47,7 @@ class BuildingDetailsActivity : AppCompatActivity() {
         densityLevelText = findViewById(R.id.density_level)
         densityProgressBar = findViewById(R.id.progressBar)
 
-        Picasso.get().load(imageURL).into(buildingImageView)
+        Picasso.get().load(building?.url).into(buildingImageView)
 
         buildingNameText.text = "${building?.buildingName}"
 

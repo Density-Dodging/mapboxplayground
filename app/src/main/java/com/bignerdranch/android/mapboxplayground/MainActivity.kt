@@ -259,7 +259,6 @@ class MainActivity : AppCompatActivity(), MapboxMap.OnMapClickListener, Permissi
             mapboxMap.setStyle(Style.MAPBOX_STREETS) {
                 mapStyle = it
                 // Map is set up and the style has loaded. Now you can add data or make other map adjustments
-                enableLocationComponent()
 
                 // 3D - BUILDINGS
                 displayBuildings3D(it)
@@ -283,6 +282,8 @@ class MainActivity : AppCompatActivity(), MapboxMap.OnMapClickListener, Permissi
                     displayRoute(safestPath, true)
                 }
 
+                enableLocationComponent()
+
                 mapboxMap.addOnMapClickListener(this)
             }
         }
@@ -301,14 +302,9 @@ class MainActivity : AppCompatActivity(), MapboxMap.OnMapClickListener, Permissi
             ) == PackageManager.PERMISSION_GRANTED
         ) {
 
-            // Create and customize the LocationComponent's options
-            val customLocationComponentOptions = LocationComponentOptions.builder(this)
-                .trackingGesturesManagement(true).accuracyColor(R.color.colorPrimary)
-                .build()
-
             val locationComponentActivationOptions =
                 LocationComponentActivationOptions.builder(this, mapStyle)
-                    .locationComponentOptions(customLocationComponentOptions)
+                    .useDefaultLocationEngine(false)
                     .build()
 
             // Get an instance of the LocationComponent and then adjust its settings
@@ -604,7 +600,6 @@ class MainActivity : AppCompatActivity(), MapboxMap.OnMapClickListener, Permissi
 
                 // Create a Toast which displays the new location's coordinates
                 if (activity != null && result.lastLocation != null) {
-
                     currentCoordinates = mutableListOf(location.latitude, location.longitude)
                 }
 
