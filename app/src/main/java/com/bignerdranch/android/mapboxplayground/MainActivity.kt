@@ -223,8 +223,8 @@ class MainActivity : AppCompatActivity(), MapboxMap.OnMapClickListener, Permissi
 
             // a bit of hard code here I think :( Even though... This is not that bad
             if (motionEvent.rawX >= searchBar.right - 100) {
-                // your action here
                 buildingMarkers.clearPaths()
+                searchBar.setText("", false)
                 true
             } else {
                 view.performClick()
