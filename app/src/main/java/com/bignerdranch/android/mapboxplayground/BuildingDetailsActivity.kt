@@ -26,10 +26,12 @@ class BuildingDetailsActivity : AppCompatActivity() {
     private var building: Building? = null
     private lateinit var buildingNameText: TextView
     private lateinit var densityLevelText: TextView
+    private lateinit var densityLevelPercentage: TextView
 
     private lateinit var getDirectionsBtn: Button
     private lateinit var buildingImageView: ImageView
     private lateinit var densityProgressBar: ProgressBar
+    private var occupancyLevel: Int? = 0
 
 
     //////////////////////// LIFECYCLE ////////////////////////
@@ -42,10 +44,78 @@ class BuildingDetailsActivity : AppCompatActivity() {
         getDataFromIntent()
         initializeUiElements()
 
+//        buildingImageView = findViewById(R.id.imageView)
+//        buildingNameText = findViewById(R.id.buildingName)
+//        densityLevelText = findViewById(R.id.density_level)
+//        densityProgressBar = findViewById(R.id.progressBar)
+//        densityLevelPercentage = findViewById(R.id.occupancyLevel)
+//
+//        Picasso.get().load(building?.url).into(buildingImageView)
+//
+//        buildingNameText.text = "${building?.buildingName}"
+//
+//        when (building?.densityLevel) {
+//            3 -> {
+//                densityLevelText.text = "High"
+//                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+//                    densityProgressBar.progressDrawable.colorFilter =
+//                        BlendModeColorFilter(Color.RED,BlendMode.SRC_IN)
+//                }
+//                occupancyLevel = (60..100).random()
+//                densityLevelPercentage.text = "$occupancyLevel" + "%"
+//                densityProgressBar.setProgress(occupancyLevel!!,false)
+//
+//
+//            }
+//            2 -> {
+//                densityLevelText.text = "Moderate"
+//                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+//                    densityProgressBar.progressDrawable.colorFilter =
+//                        BlendModeColorFilter(Color.YELLOW,BlendMode.SRC_IN)
+//                }
+//                occupancyLevel = (30..60).random()
+//                densityLevelPercentage.text = "$occupancyLevel" + "%"
+//                densityProgressBar.setProgress(occupancyLevel!!,false)
+//
+//            }
+//            else -> {
+//                densityLevelText.text = "Low"
+//                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+//                    densityProgressBar.progressDrawable.colorFilter =
+//                        BlendModeColorFilter(Color.GREEN,BlendMode.SRC_IN)
+//                }
+//                occupancyLevel = (5..30).random()
+//                densityLevelPercentage.text = "$occupancyLevel" + "%"
+//                densityProgressBar.setProgress(occupancyLevel!!,false)
+//
+//            }
+//        }
+//
+//        //actionbar
+//        val actionbar = supportActionBar
+//        //set actionbar title
+//        actionbar!!.title = "${building?.buildingName}"
+//        //set back button
+//        actionbar.setDisplayHomeAsUpEnabled(true)
+//        actionbar.setDisplayHomeAsUpEnabled(true)
+    }
+
+    //////////////////////// OTHER FCNS ////////////////////////
+
+    @RequiresApi(Build.VERSION_CODES.N)
+    private fun initializeUiElements() {
+        getDirectionsBtn = findViewById(R.id.getDirectionsBtn)
+        getDirectionsBtn.setOnClickListener {
+            building?.let {
+                setDirectionsRequested(it.id)
+            }
+        }
+
         buildingImageView = findViewById(R.id.imageView)
         buildingNameText = findViewById(R.id.buildingName)
         densityLevelText = findViewById(R.id.density_level)
         densityProgressBar = findViewById(R.id.progressBar)
+        densityLevelPercentage = findViewById(R.id.occupancyLevel)
 
         Picasso.get().load(building?.url).into(buildingImageView)
 
@@ -58,7 +128,10 @@ class BuildingDetailsActivity : AppCompatActivity() {
                     densityProgressBar.progressDrawable.colorFilter =
                         BlendModeColorFilter(Color.RED,BlendMode.SRC_IN)
                 }
-                densityProgressBar.setProgress((60..100).random(),false)
+                occupancyLevel = (60..100).random()
+                densityLevelPercentage.text = "$occupancyLevel" + "%"
+                densityProgressBar.setProgress(occupancyLevel!!,false)
+
 
             }
             2 -> {
@@ -67,7 +140,9 @@ class BuildingDetailsActivity : AppCompatActivity() {
                     densityProgressBar.progressDrawable.colorFilter =
                         BlendModeColorFilter(Color.YELLOW,BlendMode.SRC_IN)
                 }
-                densityProgressBar.setProgress((30..60).random(),false)
+                occupancyLevel = (30..60).random()
+                densityLevelPercentage.text = "$occupancyLevel" + "%"
+                densityProgressBar.setProgress(occupancyLevel!!,false)
 
             }
             else -> {
@@ -76,7 +151,9 @@ class BuildingDetailsActivity : AppCompatActivity() {
                     densityProgressBar.progressDrawable.colorFilter =
                         BlendModeColorFilter(Color.GREEN,BlendMode.SRC_IN)
                 }
-                densityProgressBar.setProgress((10..30).random(),false)
+                occupancyLevel = (5..30).random()
+                densityLevelPercentage.text = "$occupancyLevel" + "%"
+                densityProgressBar.setProgress(occupancyLevel!!,false)
 
             }
         }
@@ -88,17 +165,6 @@ class BuildingDetailsActivity : AppCompatActivity() {
         //set back button
         actionbar.setDisplayHomeAsUpEnabled(true)
         actionbar.setDisplayHomeAsUpEnabled(true)
-    }
-
-    //////////////////////// OTHER FCNS ////////////////////////
-
-    private fun initializeUiElements() {
-        getDirectionsBtn = findViewById(R.id.getDirectionsBtn)
-        getDirectionsBtn.setOnClickListener {
-            building?.let {
-                setDirectionsRequested(it.id)
-            }
-        }
     }
 
     private fun setDirectionsRequested(buildingId: String) {
