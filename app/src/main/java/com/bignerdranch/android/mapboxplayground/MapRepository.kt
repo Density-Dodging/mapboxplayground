@@ -78,6 +78,11 @@ class MapRepository private constructor(context: Context) {
         })
     }
 
+    fun clearPaths() {
+        pathFastest.value = listOf()
+        pathSafest.value = listOf()
+    }
+
 
     // used for adding nodes into map
     init{

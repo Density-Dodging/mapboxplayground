@@ -22,4 +22,8 @@ class CustomAutoCompleteTextView(context: Context, attributeSet: AttributeSet): 
             performFiltering(text, 0)
         }
     }
+
+    override fun performClick(): Boolean {
+        return super.performClick()
+    }
 }

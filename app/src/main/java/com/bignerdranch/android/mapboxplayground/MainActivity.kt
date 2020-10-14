@@ -15,6 +15,7 @@ import android.location.Location
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
+import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
 import android.view.inputmethod.InputMethodManager
@@ -31,18 +32,18 @@ import com.mapbox.geojson.Point
 import com.mapbox.mapboxsdk.Mapbox
 import com.mapbox.mapboxsdk.geometry.LatLng
 import com.mapbox.mapboxsdk.location.LocationComponentActivationOptions
-import com.mapbox.mapboxsdk.location.LocationComponentOptions
 import com.mapbox.mapboxsdk.location.modes.CameraMode
 import com.mapbox.mapboxsdk.location.modes.RenderMode
 import com.mapbox.mapboxsdk.maps.MapView
 import com.mapbox.mapboxsdk.maps.MapboxMap
 import com.mapbox.mapboxsdk.maps.Style
 import com.mapbox.mapboxsdk.style.expressions.Expression.*
-import com.mapbox.mapboxsdk.style.layers.*
+import com.mapbox.mapboxsdk.style.layers.CircleLayer
+import com.mapbox.mapboxsdk.style.layers.FillExtrusionLayer
+import com.mapbox.mapboxsdk.style.layers.LineLayer
+import com.mapbox.mapboxsdk.style.layers.Property
 import com.mapbox.mapboxsdk.style.layers.PropertyFactory.*
-import com.mapbox.mapboxsdk.style.sources.GeoJsonOptions
 import com.mapbox.mapboxsdk.style.sources.GeoJsonSource
-import kotlinx.android.synthetic.main.activity_main.*
 import java.lang.ref.WeakReference
 
 
@@ -215,6 +216,20 @@ class MainActivity : AppCompatActivity(), MapboxMap.OnMapClickListener, Permissi
             searchBar.setText(buildingTo?.buildingName)
             handleDisplayingDirections()
             hideSoftKeyboard(this)
+        }
+
+        searchBar.setOnTouchListener { view: View, motionEvent: MotionEvent ->
+
+
+            // a bit of hard code here I think :( Even though... This is not that bad
+            if (motionEvent.rawX >= searchBar.right - 100) {
+                // your action here
+                buildingMarkers.clearPaths()
+                true
+            } else {
+                view.performClick()
+                false
+            }
         }
     }
 
