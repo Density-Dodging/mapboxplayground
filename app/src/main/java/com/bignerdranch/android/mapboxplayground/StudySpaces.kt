@@ -69,6 +69,15 @@ class StudySpaces : AppCompatActivity() {
 
     private fun initUiElements() {
         studySpacesList = findViewById(R.id.studySpacesList)
+
+        //actionbar
+        val actionbar = supportActionBar
+        //set actionbar title
+        actionbar!!.title = "Study Spaces"
+        //set back button
+        actionbar.setDisplayHomeAsUpEnabled(true)
+        actionbar.setDisplayHomeAsUpEnabled(true)
+
     }
 
     private fun startBuildingDetailsActivity(buildingId: String) {
