@@ -76,7 +76,9 @@ class MainActivity : AppCompatActivity(), MapboxMap.OnMapClickListener, Permissi
 
     private lateinit var mapView: MapView
 
+    private lateinit var clearText: Button
     private lateinit var myClassesBtn: Button
+
 
     private var buildingGreenCollection: FeatureCollection? = null
     private var buildingYellowCollection: FeatureCollection? = null
@@ -192,6 +194,7 @@ class MainActivity : AppCompatActivity(), MapboxMap.OnMapClickListener, Permissi
     private fun initializeUiElements() {
         mapView = findViewById(R.id.mapView)
         searchBar = findViewById(R.id.buildingSearch)
+        clearText = findViewById(R.id.clear)
         studySpacesButton = findViewById(R.id.studySpaces)
         myClassesBtn = findViewById(R.id.myClasses)
 
@@ -216,6 +219,10 @@ class MainActivity : AppCompatActivity(), MapboxMap.OnMapClickListener, Permissi
             searchBar.setText(buildingTo?.buildingName)
             handleDisplayingDirections()
             hideSoftKeyboard(this)
+        }
+
+        clearText.setOnClickListener{
+            searchBar.setText("")
         }
 
         searchBar.setOnTouchListener { view: View, motionEvent: MotionEvent ->
