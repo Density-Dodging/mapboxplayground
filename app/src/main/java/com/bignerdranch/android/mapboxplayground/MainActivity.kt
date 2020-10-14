@@ -478,14 +478,14 @@ class MainActivity : AppCompatActivity(), MapboxMap.OnMapClickListener, Permissi
                         stop(3, 15f)
                     )
                 ),
-                circleColor(parseColor("#3bb728"))
+                circleColor(parseColor("#7DC791"))
             )
         style.addLayer(greenCircleLayer)
 
         // yellow
         style.addSource(GeoJsonSource(YELLOW_BUILDINGS_SOURCE_ID, buildingYellowCollection))
 
-        // Add the GreenBuildingLayer
+        // Add the yellow
         val yellowCircleLayer: CircleLayer = CircleLayer(
             YELLOW_CIRCLE_LAYER_ID,
             YELLOW_BUILDINGS_SOURCE_ID
@@ -498,14 +498,14 @@ class MainActivity : AppCompatActivity(), MapboxMap.OnMapClickListener, Permissi
                         stop(3, 15f)
                     )
                 ),
-                circleColor(parseColor("#ffda3a"))
+                circleColor(parseColor("#E6D77A"))
             )
         style.addLayer(yellowCircleLayer)
 
         // red
         style.addSource(GeoJsonSource(RED_BUILDINGS_SOURCE_ID, buildingRedCollection))
 
-        // Add the GreenBuildingLayer
+        // Add the red layer
         val redCircleLayer: CircleLayer = CircleLayer(RED_CIRCLE_LAYER_ID, RED_BUILDINGS_SOURCE_ID)
             .withProperties(
                 circleRadius(
@@ -515,7 +515,7 @@ class MainActivity : AppCompatActivity(), MapboxMap.OnMapClickListener, Permissi
                         stop(3, 15f)
                     )
                 ),
-                circleColor(parseColor("#da2f2f"))
+                circleColor(parseColor("#DE6957"))
             )
         style.addLayer(redCircleLayer)
     }
