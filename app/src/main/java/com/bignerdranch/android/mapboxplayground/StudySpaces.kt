@@ -80,6 +80,11 @@ class StudySpaces : AppCompatActivity() {
 
     }
 
+    override fun onSupportNavigateUp(): Boolean {
+        onBackPressed()
+        return true
+    }
+
     private fun startBuildingDetailsActivity(buildingId: String) {
         if (buildingId.isNotEmpty()) {
             val intent = BuildingDetailsActivity.newIntent(this@StudySpaces, buildingId)

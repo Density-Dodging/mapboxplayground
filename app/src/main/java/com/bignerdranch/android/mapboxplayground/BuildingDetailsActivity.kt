@@ -1,5 +1,6 @@
 package com.bignerdranch.android.mapboxplayground
 
+import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.Context
 import android.content.Intent
@@ -18,6 +19,7 @@ import android.widget.TextView
 import androidx.annotation.RequiresApi
 import com.squareup.picasso.Picasso
 import org.w3c.dom.Text
+import kotlin.math.floor
 
 const val DIRECTIONS_REQUESTED_FOR_ID = "com.bignerdranch.android.densitydodger.directions_requested"
 
@@ -31,7 +33,6 @@ class BuildingDetailsActivity : AppCompatActivity() {
     private lateinit var getDirectionsBtn: Button
     private lateinit var buildingImageView: ImageView
     private lateinit var densityProgressBar: ProgressBar
-    private var occupancyLevel: Int? = 0
 
 
     //////////////////////// LIFECYCLE ////////////////////////
@@ -47,8 +48,11 @@ class BuildingDetailsActivity : AppCompatActivity() {
 
     //////////////////////// OTHER FCNS ////////////////////////
 
+    @SuppressLint("SetTextI18n")
     @RequiresApi(Build.VERSION_CODES.N)
     private fun initializeUiElements() {
+        val totalBuildingOccupancy: Int = calculateOccupancyInPercents()
+
         getDirectionsBtn = findViewById(R.id.getDirectionsBtn)
         getDirectionsBtn.setOnClickListener {
             building?.let {
@@ -73,9 +77,8 @@ class BuildingDetailsActivity : AppCompatActivity() {
                     densityProgressBar.progressDrawable.colorFilter =
                         BlendModeColorFilter(Color.RED,BlendMode.SRC_IN)
                 }
-                occupancyLevel = (60..100).random()
-                densityLevelPercentage.text = "$occupancyLevel" + "%"
-                densityProgressBar.setProgress(occupancyLevel!!,false)
+                densityLevelPercentage.text = "$totalBuildingOccupancy" + "%"
+                densityProgressBar.setProgress(totalBuildingOccupancy!!,false)
 
 
             }
@@ -85,9 +88,8 @@ class BuildingDetailsActivity : AppCompatActivity() {
                     densityProgressBar.progressDrawable.colorFilter =
                         BlendModeColorFilter(Color.YELLOW,BlendMode.SRC_IN)
                 }
-                occupancyLevel = (30..60).random()
-                densityLevelPercentage.text = "$occupancyLevel" + "%"
-                densityProgressBar.setProgress(occupancyLevel!!,false)
+                densityLevelPercentage.text = "$totalBuildingOccupancy" + "%"
+                densityProgressBar.setProgress(totalBuildingOccupancy!!,false)
 
             }
             else -> {
@@ -96,9 +98,8 @@ class BuildingDetailsActivity : AppCompatActivity() {
                     densityProgressBar.progressDrawable.colorFilter =
                         BlendModeColorFilter(Color.GREEN,BlendMode.SRC_IN)
                 }
-                occupancyLevel = (5..30).random()
-                densityLevelPercentage.text = "$occupancyLevel" + "%"
-                densityProgressBar.setProgress(occupancyLevel!!,false)
+                densityLevelPercentage.text = "$totalBuildingOccupancy" + "%"
+                densityProgressBar.setProgress(totalBuildingOccupancy!!,false)
 
             }
         }
@@ -138,5 +139,20 @@ class BuildingDetailsActivity : AppCompatActivity() {
     override fun onSupportNavigateUp(): Boolean {
         onBackPressed()
         return true
+    }
+
+    private fun calculateOccupancyInPercents(): Int {
+        var occupancyInPercent: Int = 0
+
+        var sumPercent = 0;
+        building?.people?.forEach { floor ->
+            sumPercent += floor
+        }
+
+        Log.d("OCCUPANCY", building?.people.toString())
+
+        occupancyInPercent = floor((sumPercent.toDouble() / (building?.people?.size ?: 0))).toInt()
+
+        return occupancyInPercent
     }
 }
