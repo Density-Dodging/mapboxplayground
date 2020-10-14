@@ -14,6 +14,7 @@ import android.graphics.PointF
 import android.location.Location
 import android.os.Bundle
 import android.view.LayoutInflater
+import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
 import android.view.inputmethod.InputMethodManager
@@ -36,7 +37,10 @@ import com.mapbox.mapboxsdk.maps.MapView
 import com.mapbox.mapboxsdk.maps.MapboxMap
 import com.mapbox.mapboxsdk.maps.Style
 import com.mapbox.mapboxsdk.style.expressions.Expression.*
-import com.mapbox.mapboxsdk.style.layers.*
+import com.mapbox.mapboxsdk.style.layers.CircleLayer
+import com.mapbox.mapboxsdk.style.layers.FillExtrusionLayer
+import com.mapbox.mapboxsdk.style.layers.LineLayer
+import com.mapbox.mapboxsdk.style.layers.Property
 import com.mapbox.mapboxsdk.style.layers.PropertyFactory.*
 import com.mapbox.mapboxsdk.style.sources.GeoJsonSource
 import java.lang.ref.WeakReference
@@ -208,6 +212,20 @@ class MainActivity : AppCompatActivity(), MapboxMap.OnMapClickListener, Permissi
             searchBar.setText(buildingTo?.buildingName)
             handleDisplayingDirections()
             hideSoftKeyboard(this)
+        }
+
+        searchBar.setOnTouchListener { view: View, motionEvent: MotionEvent ->
+
+
+            // a bit of hard code here I think :( Even though... This is not that bad
+            if (motionEvent.rawX >= searchBar.right - 100) {
+                buildingMarkers.clearPaths()
+                searchBar.setText("", false)
+                true
+            } else {
+                view.performClick()
+                false
+            }
         }
     }
 
@@ -471,14 +489,14 @@ class MainActivity : AppCompatActivity(), MapboxMap.OnMapClickListener, Permissi
                         stop(3, 15f)
                     )
                 ),
-                circleColor(parseColor("#3bb728"))
+                circleColor(parseColor("#7DC791"))
             )
         style.addLayer(greenCircleLayer)
 
         // yellow
         style.addSource(GeoJsonSource(YELLOW_BUILDINGS_SOURCE_ID, buildingYellowCollection))
 
-        // Add the GreenBuildingLayer
+        // Add the yellow
         val yellowCircleLayer: CircleLayer = CircleLayer(
             YELLOW_CIRCLE_LAYER_ID,
             YELLOW_BUILDINGS_SOURCE_ID
@@ -491,14 +509,14 @@ class MainActivity : AppCompatActivity(), MapboxMap.OnMapClickListener, Permissi
                         stop(3, 15f)
                     )
                 ),
-                circleColor(parseColor("#ffda3a"))
+                circleColor(parseColor("#E6D77A"))
             )
         style.addLayer(yellowCircleLayer)
 
         // red
         style.addSource(GeoJsonSource(RED_BUILDINGS_SOURCE_ID, buildingRedCollection))
 
-        // Add the GreenBuildingLayer
+        // Add the red layer
         val redCircleLayer: CircleLayer = CircleLayer(RED_CIRCLE_LAYER_ID, RED_BUILDINGS_SOURCE_ID)
             .withProperties(
                 circleRadius(
@@ -508,7 +526,7 @@ class MainActivity : AppCompatActivity(), MapboxMap.OnMapClickListener, Permissi
                         stop(3, 15f)
                     )
                 ),
-                circleColor(parseColor("#da2f2f"))
+                circleColor(parseColor("#DE6957"))
             )
         style.addLayer(redCircleLayer)
     }
