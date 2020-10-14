@@ -4,12 +4,16 @@ import android.animation.Animator
 import android.animation.AnimatorListenerAdapter
 import android.animation.ArgbEvaluator
 import android.animation.ValueAnimator
+import android.annotation.SuppressLint
+import android.app.Activity
+import android.content.Context
 import android.content.Intent
 import android.graphics.Color
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.util.Log
 import android.view.animation.DecelerateInterpolator
 import android.widget.Button
+import androidx.appcompat.app.AppCompatActivity
 import androidx.cardview.widget.CardView
 import androidx.core.graphics.ColorUtils
 import kotlinx.android.synthetic.main.activity_my_classes.*
@@ -18,6 +22,7 @@ class MyClassesPopup : AppCompatActivity() {
 
     private lateinit var okBtn: Button
     private lateinit var addBtn: Button
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_my_classes)
@@ -69,11 +74,33 @@ class MyClassesPopup : AppCompatActivity() {
         colorAnimation.start()
     }
 
+
+    override fun onActivityResult(
+        requestCode: Int,
+        resultCode: Int,
+        data: Intent?
+    ) {
+        super.onActivityResult(requestCode, resultCode, data)
+        if (resultCode != Activity.RESULT_OK) {
+            return
+        }
+        if (requestCode == REQUEST_CODE_BUILDING_INFO) {
+            val id = data?.getStringExtra(DIRECTIONS_REQUESTED_FOR_ID).toString()
+            setDirectionsRequested(id)
+        }
+    }
+
+
+    @SuppressLint("ResourceType")
     fun initializeUIElements(){
         okBtn = findViewById(R.id.popup_window_button)
         okBtn.setOnClickListener {
             onBackPressed()
         }
+
+        var firstClassroom = ""
+        var secondClassroom = ""
+        var thirdClassroom = ""
 
         addBtn = findViewById(R.id.add_card_view)
         addBtn.setOnClickListener {
@@ -82,22 +109,42 @@ class MyClassesPopup : AppCompatActivity() {
             root.addView(newCardView, root.childCount - 1) // adding cardView to LinearLayout at the second to last position
         }
         class1Btn.setOnClickListener{
-            val intent = Intent(this, MainActivity::class.java)
-            startActivity(intent)
+            firstClassroom = room1Text.text.toString()
+            room1Text.setText(firstClassroom)
+            firstClassroom = firstTwo(firstClassroom)
+            setDirectionsRequested(firstClassroom)
         }
 
         class2Btn.setOnClickListener{
-            val intent = Intent(this, MainActivity::class.java)
-            startActivity(intent)
+            secondClassroom = room1Text.text.toString()
+            room1Text.setText(secondClassroom)
+            secondClassroom = firstTwo(secondClassroom)
+            setDirectionsRequested(secondClassroom)
         }
 
         class3Btn.setOnClickListener{
-            val intent = Intent(this, MainActivity::class.java)
-            startActivity(intent)
+            thirdClassroom = room1Text.text.toString()
+            room1Text.setText(thirdClassroom)
+            thirdClassroom = firstTwo(thirdClassroom)
+            setDirectionsRequested(thirdClassroom)
         }
     }
 
-    fun getDirections(){
+    private fun setDirectionsRequested(buildingId: String) {
+        val data = Intent().apply {
+            putExtra(DIRECTIONS_REQUESTED_FOR_ID, buildingId)
+        }
+        setResult(Activity.RESULT_OK, data)
+        this.finish()
+    }
 
+    private fun firstTwo(str: String): String {
+        return if (str.length < 2) str else str.substring(0, 2)
+    }
+
+    companion object {
+        fun newIntent(packageContext: Context): Intent {
+            return Intent(packageContext, MyClassesPopup::class.java)
+        }
     }
 }

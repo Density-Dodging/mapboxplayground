@@ -68,6 +68,7 @@ const val BUILDING_ID = "building_id"
 
 const val REQUEST_CODE_BUILDING_INFO = 0
 const val REQUEST_CODE_STUDY_SPACES = 1
+const val REQUEST_CODE_MY_CLASSES = 2
 
 class MainActivity : AppCompatActivity(), MapboxMap.OnMapClickListener, PermissionsListener {
     private val DEFAULT_INTERVAL_IN_MILLISECONDS = 1000L
@@ -124,6 +125,10 @@ class MainActivity : AppCompatActivity(), MapboxMap.OnMapClickListener, Permissi
             val id = data?.getStringExtra(DIRECTIONS_REQUESTED_FOR_ID).toString()
             requestDirections(id)
         } else if (requestCode == REQUEST_CODE_STUDY_SPACES) {
+            val id = data?.getStringExtra(DIRECTIONS_REQUESTED_FOR_ID).toString()
+            requestDirections(id)
+        }
+        else if (requestCode == REQUEST_CODE_MY_CLASSES) {
             val id = data?.getStringExtra(DIRECTIONS_REQUESTED_FOR_ID).toString()
             requestDirections(id)
         }
@@ -195,8 +200,7 @@ class MainActivity : AppCompatActivity(), MapboxMap.OnMapClickListener, Permissi
         }
 
         myClassesBtn.setOnClickListener {
-            val intent = Intent(this, MyClassesPopup::class.java)
-            startActivity(intent)
+            startMyClassesActivity()
         }
 
 
@@ -232,6 +236,11 @@ class MainActivity : AppCompatActivity(), MapboxMap.OnMapClickListener, Permissi
     private fun startStudySpacesActivity() {
         val intent = StudySpaces.newIntent(this@MainActivity)
         startActivityForResult(intent, REQUEST_CODE_STUDY_SPACES)
+    }
+
+    private fun startMyClassesActivity() {
+        val intent = MyClassesPopup.newIntent(this@MainActivity)
+        startActivityForResult(intent, REQUEST_CODE_MY_CLASSES)
     }
 
     private fun hideSoftKeyboard(activity: Activity) {
