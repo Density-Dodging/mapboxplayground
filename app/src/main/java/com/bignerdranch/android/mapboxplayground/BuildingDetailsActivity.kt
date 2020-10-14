@@ -43,61 +43,6 @@ class BuildingDetailsActivity : AppCompatActivity() {
 
         getDataFromIntent()
         initializeUiElements()
-
-//        buildingImageView = findViewById(R.id.imageView)
-//        buildingNameText = findViewById(R.id.buildingName)
-//        densityLevelText = findViewById(R.id.density_level)
-//        densityProgressBar = findViewById(R.id.progressBar)
-//        densityLevelPercentage = findViewById(R.id.occupancyLevel)
-//
-//        Picasso.get().load(building?.url).into(buildingImageView)
-//
-//        buildingNameText.text = "${building?.buildingName}"
-//
-//        when (building?.densityLevel) {
-//            3 -> {
-//                densityLevelText.text = "High"
-//                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-//                    densityProgressBar.progressDrawable.colorFilter =
-//                        BlendModeColorFilter(Color.RED,BlendMode.SRC_IN)
-//                }
-//                occupancyLevel = (60..100).random()
-//                densityLevelPercentage.text = "$occupancyLevel" + "%"
-//                densityProgressBar.setProgress(occupancyLevel!!,false)
-//
-//
-//            }
-//            2 -> {
-//                densityLevelText.text = "Moderate"
-//                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-//                    densityProgressBar.progressDrawable.colorFilter =
-//                        BlendModeColorFilter(Color.YELLOW,BlendMode.SRC_IN)
-//                }
-//                occupancyLevel = (30..60).random()
-//                densityLevelPercentage.text = "$occupancyLevel" + "%"
-//                densityProgressBar.setProgress(occupancyLevel!!,false)
-//
-//            }
-//            else -> {
-//                densityLevelText.text = "Low"
-//                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-//                    densityProgressBar.progressDrawable.colorFilter =
-//                        BlendModeColorFilter(Color.GREEN,BlendMode.SRC_IN)
-//                }
-//                occupancyLevel = (5..30).random()
-//                densityLevelPercentage.text = "$occupancyLevel" + "%"
-//                densityProgressBar.setProgress(occupancyLevel!!,false)
-//
-//            }
-//        }
-//
-//        //actionbar
-//        val actionbar = supportActionBar
-//        //set actionbar title
-//        actionbar!!.title = "${building?.buildingName}"
-//        //set back button
-//        actionbar.setDisplayHomeAsUpEnabled(true)
-//        actionbar.setDisplayHomeAsUpEnabled(true)
     }
 
     //////////////////////// OTHER FCNS ////////////////////////

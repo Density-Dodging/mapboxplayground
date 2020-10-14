@@ -13,7 +13,6 @@ import android.graphics.Color.parseColor
 import android.graphics.PointF
 import android.location.Location
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -31,7 +30,6 @@ import com.mapbox.geojson.Point
 import com.mapbox.mapboxsdk.Mapbox
 import com.mapbox.mapboxsdk.geometry.LatLng
 import com.mapbox.mapboxsdk.location.LocationComponentActivationOptions
-import com.mapbox.mapboxsdk.location.LocationComponentOptions
 import com.mapbox.mapboxsdk.location.modes.CameraMode
 import com.mapbox.mapboxsdk.location.modes.RenderMode
 import com.mapbox.mapboxsdk.maps.MapView
@@ -40,9 +38,7 @@ import com.mapbox.mapboxsdk.maps.Style
 import com.mapbox.mapboxsdk.style.expressions.Expression.*
 import com.mapbox.mapboxsdk.style.layers.*
 import com.mapbox.mapboxsdk.style.layers.PropertyFactory.*
-import com.mapbox.mapboxsdk.style.sources.GeoJsonOptions
 import com.mapbox.mapboxsdk.style.sources.GeoJsonSource
-import kotlinx.android.synthetic.main.activity_main.*
 import java.lang.ref.WeakReference
 
 
@@ -187,18 +183,15 @@ class MainActivity : AppCompatActivity(), MapboxMap.OnMapClickListener, Permissi
     private fun initializeUiElements() {
         mapView = findViewById(R.id.mapView)
         searchBar = findViewById(R.id.buildingSearch)
-
         studySpacesButton = findViewById(R.id.studySpaces)
+        myClassesBtn = findViewById(R.id.myClasses)
 
         studySpacesButton.setOnClickListener {
             startStudySpacesActivity()
         }
 
-        myClassesBtn = findViewById(R.id.myClasses)
-
-
         myClassesBtn.setOnClickListener {
-            val intent = Intent(this, MyClasses::class.java)
+            val intent = Intent(this, MyClassesPopup::class.java)
             startActivity(intent)
         }
 
