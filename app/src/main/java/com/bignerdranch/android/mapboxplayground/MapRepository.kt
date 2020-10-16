@@ -28,7 +28,7 @@ class MapRepository private constructor(context: Context) {
 
         routeRequest.enqueue(object : Callback<List<List<Double>>> {
             override fun onFailure(call: Call<List<List<Double>>>, t: Throwable) {
-                Log.e("TAG", "Failed to fetch buildings", t)
+                Log.e("APIFAIL", "Failed to fetch routes", t)
             }
 
             override fun onResponse(call: Call<List<List<Double>>>, response: Response<List<List<Double>>>) {
@@ -65,7 +65,9 @@ class MapRepository private constructor(context: Context) {
 
         buildingsRequest.enqueue(object : Callback<List<Building>> {
             override fun onFailure(call: Call<List<Building>>, t: Throwable) {
-                Log.e("TAG", "Failed to fetch buildings", t)
+                Log.e("APIFAIL", "Failed to fetch buildings", t)
+                // retry
+                loadBuildings()
             }
 
             override fun onResponse(call: Call<List<Building>>, response: Response<List<Building>>) {

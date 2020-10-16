@@ -13,6 +13,7 @@ import android.graphics.Color.parseColor
 import android.graphics.PointF
 import android.location.Location
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.MotionEvent
 import android.view.View
@@ -222,21 +223,8 @@ class MainActivity : AppCompatActivity(), MapboxMap.OnMapClickListener, Permissi
         }
 
         clearText.setOnClickListener{
+            buildingMarkers.clearPaths()
             searchBar.setText("")
-        }
-
-        searchBar.setOnTouchListener { view: View, motionEvent: MotionEvent ->
-
-
-            // a bit of hard code here I think :( Even though... This is not that bad
-            if (motionEvent.rawX >= searchBar.right - 100) {
-                buildingMarkers.clearPaths()
-                searchBar.setText("", false)
-                true
-            } else {
-                view.performClick()
-                false
-            }
         }
     }
 
@@ -296,9 +284,11 @@ class MainActivity : AppCompatActivity(), MapboxMap.OnMapClickListener, Permissi
         mapView.getMapAsync { mapboxMap ->
 
             mapBoxMap = mapboxMap
+            mapBoxMap.uiSettings.isCompassEnabled = false
             mapboxMap.setStyle(Style.MAPBOX_STREETS) {
                 mapStyle = it
                 // Map is set up and the style has loaded. Now you can add data or make other map adjustments
+
 
                 // 3D - BUILDINGS
                 displayBuildings3D(it)
