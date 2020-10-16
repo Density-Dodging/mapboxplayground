@@ -98,6 +98,11 @@ class MyClassesPopup : AppCompatActivity() {
             onBackPressed()
         }
 
+        //actionbar
+        val actionbar = supportActionBar
+        //set actionbar title
+        actionbar!!.title = "My Classes"
+
         var firstClassroom = ""
         var secondClassroom = ""
         var thirdClassroom = ""
